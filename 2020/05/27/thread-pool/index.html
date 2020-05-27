@@ -40,7 +40,7 @@
 
   
   
-  <link href="lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+  <link href="../../../../lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
 
 
 
@@ -48,29 +48,27 @@
 
 
 
-<link href="lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+<link href="../../../../lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
 
-<link href="css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+<link href="../../../../css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
 
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../../../images/apple-touch-icon-next.png?v=5.1.4">
 
 
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../images/favicon-32x32-next.png?v=5.1.4">
 
 
-  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../../../images/favicon-16x16-next.png?v=5.1.4">
 
 
+  <link rel="mask-icon" href="../../../../images/logo.svg?v=5.1.4" color="#222">
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
 
 
+  <meta name="keywords" content="Java,多线程," />
 
 
 
@@ -79,12 +77,22 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="DingoDemon">
-<meta property="og:url" content="http://yoursite.com/index.html">
+
+
+<meta name="description" content="线程池的属性 corePoolSize  (核心线程数量) maximumPoolSize  (线程池线程总数量) keepAliveTime (非核心线程存活时间值) unit  (非核心线程存活时间值单位) BlockingQueue workQueue  (任务阻塞队列) ThreadFactory  (线程创建工厂) RejectedExecutionHandler  (拒绝策略)  线程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线程池">
+<meta property="og:url" content="http://yoursite.com/2020/05/27/thread-pool/index.html">
 <meta property="og:site_name" content="DingoDemon">
+<meta property="og:description" content="线程池的属性 corePoolSize  (核心线程数量) maximumPoolSize  (线程池线程总数量) keepAliveTime (非核心线程存活时间值) unit  (非核心线程存活时间值单位) BlockingQueue workQueue  (任务阻塞队列) ThreadFactory  (线程创建工厂) RejectedExecutionHandler  (拒绝策略)  线程">
+<meta property="og:image" content="http://yoursite.com/2020/05/27/thread-pool/thread_pool.png">
+<meta property="article:published_time" content="2020-05-27T14:30:38.000Z">
+<meta property="article:modified_time" content="2020-05-27T14:48:42.885Z">
 <meta property="article:author" content="DingoDemon">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="多线程">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/05/27/thread-pool/thread_pool.png">
 
 
 
@@ -114,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/05/27/thread-pool/"/>
 
 
 
 
 
-  <title>DingoDemon</title>
+  <title>线程池 | DingoDemon</title>
   
 
 
@@ -139,8 +147,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -223,9 +230,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -238,12 +245,12 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com2020/05/28/newBegin/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DingoDemon">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/Avatar.png">
+      <meta itemprop="image" content="../../../../images/Avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -255,131 +262,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="2020/05/28/newBegin/" itemprop="url">序</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-28T00:00:00+08:00">
-                2020-05-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>原来的source不在了，看了下原来写的blog，浮夸中二粗糙。</p>
-<p>雄关漫道真如铁，而今迈步从头越。</p>
-<p>用简单的话，把学过的技术，扎扎实实地讲清楚。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com2020/05/27/thread-pool/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DingoDemon">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/Avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="DingoDemon">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="2020/05/27/thread-pool/" itemprop="url">线程池</a></h1>
+          <h1 class="post-title" itemprop="name headline">线程池</h1>
         
 
         <div class="post-meta">
@@ -414,7 +297,7 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="categories/Java/" itemprop="url" rel="index">
+                  <a href="../../../../categories/Java/" itemprop="url" rel="index">
                     <span itemprop="name">Java</span>
                   </a>
                 </span>
@@ -451,9 +334,7 @@
       
 
       
-        
-          
-            <h2 id="线程池的属性"><a href="#线程池的属性" class="headerlink" title="线程池的属性"></a>线程池的属性</h2><ol>
+        <h2 id="线程池的属性"><a href="#线程池的属性" class="headerlink" title="线程池的属性"></a>线程池的属性</h2><ol>
 <li>corePoolSize  <em>(核心线程数量)</em></li>
 <li>maximumPoolSize  <em>(线程池线程总数量)</em></li>
 <li>keepAliveTime <em>(非核心线程存活时间值)</em></li>
@@ -547,8 +428,6 @@
 </ul>
 <p><img src="/2020/05/27/thread-pool/thread_pool.png" alt="methods"></p>
 
-          
-        
       
     </div>
     
@@ -563,14 +442,38 @@
 
     <footer class="post-footer">
       
-
+        <div class="post-tags">
+          
+            <a href="../../../../tags/Java/" rel="tag"># Java</a>
+          
+            <a href="../../../../tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag"># 多线程</a>
+          
+        </div>
       
 
       
+      
+      
 
       
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="../../28/newBegin/" rel="prev" title="序">
+                序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
       
-        <div class="post-eof"></div>
+
+      
       
     </footer>
   </div>
@@ -580,10 +483,11 @@
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -591,6 +495,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -611,13 +519,22 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
               <img class="site-author-image" itemprop="image"
-                src="/images/Avatar.png"
+                src="../../../../images/Avatar.png"
                 alt="DingoDemon" />
             
               <p class="site-author-name" itemprop="name">DingoDemon</p>
@@ -629,7 +546,7 @@
             
               <div class="site-state-item site-state-posts">
               
-                <a href="/archives/%20%7C%7C%20archive">
+                <a href="../../../../archives/%20%7C%7C%20archive">
               
                   <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">日志</span>
@@ -676,6 +593,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池的属性"><span class="nav-number">1.</span> <span class="nav-text">线程池的属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池执行任务策略"><span class="nav-number">2.</span> <span class="nav-text">线程池执行任务策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线程池拒绝策略"><span class="nav-number">2.1.</span> <span class="nav-text">线程池拒绝策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池如何处理异常"><span class="nav-number">3.</span> <span class="nav-text">线程池如何处理异常</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#关于submit和execute"><span class="nav-number">3.1.</span> <span class="nav-text">关于submit和execute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#上文说过的使用submit，并从Future中get获取异常"><span class="nav-number">3.2.</span> <span class="nav-text">上文说过的使用submit，并从Future中get获取异常</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用try-catch"><span class="nav-number">3.2.1.</span> <span class="nav-text">使用try&#x2F;catch</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用UncaughtExceptionHandler"><span class="nav-number">3.3.</span> <span class="nav-text">使用UncaughtExceptionHandler</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重写-afterExecute"><span class="nav-number">3.4.</span> <span class="nav-text">重写 afterExecute</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池队列"><span class="nav-number">4.</span> <span class="nav-text">线程池队列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ArrayBlockingQueue"><span class="nav-number">4.1.</span> <span class="nav-text">ArrayBlockingQueue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LinkedBlockingQueue"><span class="nav-number">4.2.</span> <span class="nav-text">LinkedBlockingQueue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DelayQueue"><span class="nav-number">4.3.</span> <span class="nav-text">DelayQueue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PriorityBlockingQueue"><span class="nav-number">4.4.</span> <span class="nav-text">PriorityBlockingQueue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SynchronousQueue"><span class="nav-number">4.5.</span> <span class="nav-text">SynchronousQueue</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-提供的常见的线程池"><span class="nav-number">5.</span> <span class="nav-text">JDK 提供的常见的线程池</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FixedThreadPool"><span class="nav-number">5.1.</span> <span class="nav-text">FixedThreadPool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CachedThreadPool"><span class="nav-number">5.2.</span> <span class="nav-text">CachedThreadPool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SingleThreadExecutor"><span class="nav-number">5.3.</span> <span class="nav-text">SingleThreadExecutor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ScheduledThreadPool"><span class="nav-number">5.4.</span> <span class="nav-text">ScheduledThreadPool</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池状态"><span class="nav-number">6.</span> <span class="nav-text">线程池状态</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -767,53 +700,57 @@
 
   
   
-    <script type="text/javascript" src="lib/jquery/index.js?v=2.1.3"></script>
+    <script type="text/javascript" src="../../../../lib/jquery/index.js?v=2.1.3"></script>
   
 
   
   
-    <script type="text/javascript" src="lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+    <script type="text/javascript" src="../../../../lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
   
 
   
   
-    <script type="text/javascript" src="lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+    <script type="text/javascript" src="../../../../lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
   
 
   
   
-    <script type="text/javascript" src="lib/velocity/velocity.min.js?v=1.2.1"></script>
+    <script type="text/javascript" src="../../../../lib/velocity/velocity.min.js?v=1.2.1"></script>
   
 
   
   
-    <script type="text/javascript" src="lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+    <script type="text/javascript" src="../../../../lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
   
 
   
   
-    <script type="text/javascript" src="lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+    <script type="text/javascript" src="../../../../lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
   
 
 
   
 
 
-  <script type="text/javascript" src="js/src/utils.js?v=5.1.4"></script>
+  <script type="text/javascript" src="../../../../js/src/utils.js?v=5.1.4"></script>
 
-  <script type="text/javascript" src="js/src/motion.js?v=5.1.4"></script>
+  <script type="text/javascript" src="../../../../js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="../../../../js/src/post-details.js?v=5.1.4"></script>
 
 
 
   
-  
-
-  
-
-  
 
 
-  <script type="text/javascript" src="js/src/bootstrap.js?v=5.1.4"></script>
+  <script type="text/javascript" src="../../../../js/src/bootstrap.js?v=5.1.4"></script>
 
 
 
