@@ -87,7 +87,7 @@
 <meta property="og:description" content="线程池的属性 corePoolSize  (核心线程数量) maximumPoolSize  (线程池线程总数量) keepAliveTime (非核心线程存活时间值) unit  (非核心线程存活时间值单位) BlockingQueue workQueue  (任务阻塞队列) ThreadFactory  (线程创建工厂) RejectedExecutionHandler  (拒绝策略)">
 <meta property="og:image" content="http://yoursite.com/2020/05/27/thread-pool/thread_pool.png">
 <meta property="article:published_time" content="2020-05-27T14:30:38.000Z">
-<meta property="article:modified_time" content="2020-05-27T15:46:07.685Z">
+<meta property="article:modified_time" content="2020-05-28T08:44:53.732Z">
 <meta property="article:author" content="DingoDemon">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程">
@@ -363,10 +363,10 @@
 <p>队列达到上限的情况下，生产者阻塞</p>
 </blockquote>
 <h3 id="ArrayBlockingQueue"><a href="#ArrayBlockingQueue" class="headerlink" title="ArrayBlockingQueue"></a>ArrayBlockingQueue</h3><p>ArrayBlockingQueue（有界队列）是一个用数组实现的有界阻塞队列，按FIFO排序量。</p>
-<h3 id="LinkedBlockingQueue"><a href="#LinkedBlockingQueue" class="headerlink" title="LinkedBlockingQueue"></a>LinkedBlockingQueue</h3><p>LinkedBlockingQueue（可设置容量队列）基于链表结构的阻塞队列，按FIFO排序任务，容量可以选择进行设置，不设置的话，将是一个无边界的阻塞队列，最大长度为Integer.MAX_VALUE，吞吐量通常要高于ArrayBlockingQuene；newFixedThreadPool线程池使用了这个队列</p>
-<h3 id="DelayQueue"><a href="#DelayQueue" class="headerlink" title="DelayQueue"></a>DelayQueue</h3><p>DelayQueue（延迟队列）是一个任务定时周期的延迟执行的队列。根据指定的执行时间从小到大排序，否则根据插入到队列的先后排序。newScheduledThreadPool线程池使用了这个队列。</p>
+<h3 id="LinkedBlockingQueue"><a href="#LinkedBlockingQueue" class="headerlink" title="LinkedBlockingQueue"></a>LinkedBlockingQueue</h3><p>LinkedBlockingQueue（可设置容量队列）基于链表结构的阻塞队列，按FIFO排序任务，容量可以选择进行设置，不设置的话，将是一个无边界的阻塞队列，最大长度为Integer.MAX_VALUE，吞吐量通常要高于ArrayBlockingQuene；FixedThreadPool线程池使用了这个队列</p>
+<h3 id="DelayQueue"><a href="#DelayQueue" class="headerlink" title="DelayQueue"></a>DelayQueue</h3><p>DelayQueue（延迟队列）是一个任务定时周期的延迟执行的队列。根据指定的执行时间从小到大排序，否则根据插入到队列的先后排序。ScheduledThreadPool线程池使用了这个队列。</p>
 <h3 id="PriorityBlockingQueue"><a href="#PriorityBlockingQueue" class="headerlink" title="PriorityBlockingQueue"></a>PriorityBlockingQueue</h3><p>PriorityBlockingQueue（优先级队列）是具有优先级的无界阻塞队列；</p>
-<h3 id="SynchronousQueue"><a href="#SynchronousQueue" class="headerlink" title="SynchronousQueue"></a>SynchronousQueue</h3><p>SynchronousQueue（同步队列）一个不存储元素的阻塞队列，每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于LinkedBlockingQuene，newCachedThreadPool线程池使用了这个队列。</p>
+<h3 id="SynchronousQueue"><a href="#SynchronousQueue" class="headerlink" title="SynchronousQueue"></a>SynchronousQueue</h3><p>SynchronousQueue（同步队列）一个不存储元素的阻塞队列，每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于LinkedBlockingQuene，CachedThreadPool线程池使用了这个队列。</p>
 <h2 id="JDK-提供的常见的线程池"><a href="#JDK-提供的常见的线程池" class="headerlink" title="JDK 提供的常见的线程池"></a>JDK 提供的常见的线程池</h2><ul>
 <li>FixedThreadPool (固定数目线程的线程池)</li>
 <li>CachedThreadPool(可缓存线程的线程池)</li>
@@ -447,8 +447,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="../../../../2222/02/08/newBegin/" rel="prev" title="序">
-                序 <i class="fa fa-chevron-right"></i>
+              <a href="../../28/View%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B/" rel="prev" title="View工作流程(一)">
+                View工作流程(一) <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -530,7 +530,7 @@
               
                 <a href="../../../../archives">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -541,7 +541,7 @@
               
               <div class="site-state-item site-state-categories">
                 
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">分类</span>
                 
               </div>
@@ -552,7 +552,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="../../../../tags/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
