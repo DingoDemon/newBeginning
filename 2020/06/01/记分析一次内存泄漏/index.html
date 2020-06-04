@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Android," />
+  <meta name="keywords" content="Android,日常记录," />
 
 
 
@@ -79,15 +79,32 @@
 
 
 
+<meta name="description" content="项目是一个点餐App，点餐界面生命周期约等于App使用周期不会被销毁  由crash开始QA进行一些操作之后，静置了一段时间后，App发生闪退，拿到当时的logcat，发现报错:  其实在初始化的地方打断点也能分析。但是为了抓全选择使用MAT分析内存，事实证明，的确有意外收获。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="记分析一次内存泄漏">
 <meta property="og:url" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/index.html">
 <meta property="og:site_name" content="DingoDemon">
+<meta property="og:description" content="项目是一个点餐App，点餐界面生命周期约等于App使用周期不会被销毁  由crash开始QA进行一些操作之后，静置了一段时间后，App发生闪退，拿到当时的logcat，发现报错:  其实在初始化的地方打断点也能分析。但是为了抓全选择使用MAT分析内存，事实证明，的确有意外收获。">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/error_log_01.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/error_log_02.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/mat_window.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/list_objects.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/show_objects_by_class.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/path_to_gc.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/compare.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/compare_result.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/dish_before.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/dish_after.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/observable.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/list_object_in_adapter.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/view_click_device_item.png">
 <meta property="article:published_time" content="2020-06-01T04:03:41.000Z">
-<meta property="article:modified_time" content="2020-06-02T11:17:07.159Z">
+<meta property="article:modified_time" content="2020-06-04T14:58:46.854Z">
 <meta property="article:author" content="DingoDemon">
 <meta property="article:tag" content="Android">
+<meta property="article:tag" content="日常记录">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/error_log_01.png">
 
 
 
@@ -287,7 +304,91 @@
       
 
       
-        
+        <blockquote>
+<p>项目是一个点餐App，点餐界面生命周期约等于App使用周期不会被销毁</p>
+</blockquote>
+<h1 id="由crash开始"><a href="#由crash开始" class="headerlink" title="由crash开始"></a>由crash开始</h1><p>QA进行一些操作之后，静置了一段时间后，App发生闪退，拿到当时的logcat，发现报错:</p>
+<p><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/error_log_01.png" alt="error_01"><br><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/error_log_02.png" alt="error_02"></p>
+<p>其实在初始化的地方打断点也能分析。但是为了抓全选择使用MAT分析内存，事实证明，的确有意外收获。</p>
+<a id="more"></a>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mRenderNode = RenderNode.create(getClass().getName(), <span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">native</span> <span class="keyword">long</span> <span class="title">nCreate</span><span class="params">(String name)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>初步判断是进程中出现了大量DeviceItemView这个自定义View，并且没有被回收。<br>DeviceItemView出现在设备管理界面。于是开始进行操作，从点餐界面进入设备管理界面再回到点餐界面。通过profiler发现内存有所上升。于是设计步骤:</p>
+<ol>
+<li>点餐界面进入设备管理界面再返回点餐界面,静置10秒。通过profiler，点击数次垃圾桶进行强制gc。然后dump内存。取得hprof_small。</li>
+</ol>
+<ol start="2">
+<li>点餐界面进入设备管理界面再返回点餐界面,重复这一过程20次，静置10秒，通过profiler，点击数次垃圾桶进行强制gc。然后dump内存。取得hprof_big。</li>
+</ol>
+<ol start="3">
+<li>静置一段之间之后，再dump。获取第三份hprof。</li>
+</ol>
+<p>在此过程中没有产生业务数据，页面也理性被回收。但是profiler显示内存增加20+mb。明显存在内存泄漏。导出hprof，使用mat进行分析</p>
+<h1 id="MAT的操作简要"><a href="#MAT的操作简要" class="headerlink" title="MAT的操作简要"></a>MAT的操作简要</h1><p><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/mat_window.png" alt="mat_window"></p>
+<h2 id="界面展示"><a href="#界面展示" class="headerlink" title="界面展示"></a>界面展示</h2><ol>
+<li><p>类直方图。默认是按照某个类的shallow heap大小从大到小排序。可通过class/superclass/classloader/package来group by</p>
+</li>
+<li><p>支配树，该视图会以占用总内存的百分比来列举所有实例对象，这个视图是用来发现大内存对象的</p>
+</li>
+<li><p>大对象，展示内存中消耗昂贵的对象</p>
+</li>
+<li><p>OQL查询 </p>
+</li>
+<li><p>线程视图，线程对象的名字、线程名、线程对象占用的堆内存大小、线程对象的保留堆内存大小、线程的上下文加载器、是否为守护线程。</p>
+</li>
+<li><p>根据对象的十六进制地址查找对象的outbound引用视图</p>
+</li>
+</ol>
+<blockquote>
+<p>Objects该类在内存当中的对象个数</p>
+<p>Shallow Heap 是指对象自身所占用的内存大小，不包括它所引用的对象的内存大小</p>
+<p>Retained Heap 该对象被垃圾回收器回收之后，会释放的内存大小</p>
+</blockquote>
+<blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SELECT *</span><br><span class="line">FROM [ INSTANCEOF ] &lt;class name="name"&gt;</span><br><span class="line">[ WHERE &lt;filter-expression&gt; ]</span><br><span class="line">&lt;/filter-expression&gt;&lt;/class&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="常用操作"><a href="#常用操作" class="headerlink" title="常用操作"></a>常用操作</h2><h3 id="List-Objects"><a href="#List-Objects" class="headerlink" title="List Objects"></a>List Objects</h3><p><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/list_objects.png" alt="list_objects"></p>
+<ol>
+<li><p>with outgoing reference，展示它引用的对象</p>
+</li>
+<li><p>with incoming reference，展示引用它的对象</p>
+</li>
+</ol>
+<h3 id="Show-Objects-By-Class"><a href="#Show-Objects-By-Class" class="headerlink" title="Show Objects By Class"></a>Show Objects By Class</h3><p><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/show_objects_by_class.png" alt="show_objects_by_class"></p>
+<p>与List Objects类似，只不过展出用类的方式</p>
+<h3 id="Path-To-GC-Roots"><a href="#Path-To-GC-Roots" class="headerlink" title="Path To GC Roots"></a>Path To GC Roots</h3><p><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/path_to_gc.png" alt="path_to_gc"></p>
+<p>到GC_Roots的最短路径，可以选择排除弱软虚引用</p>
+<h1 id="分析hprof"><a href="#分析hprof" class="headerlink" title="分析hprof"></a>分析hprof</h1><h2 id="问题点-一"><a href="#问题点-一" class="headerlink" title="问题点(一)"></a>问题点(一)</h2><p>用MAT打开前两份hprof，点击compare进行比较:</p>
+<p><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/compare.png" alt="compare"></p>
+<p>对比结果如下。发现新增的对象是DishesAdapter$1 和 ViewLongClickOnSubscribe<br><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/compare_result.png" alt="compare_result"></p>
+<p><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/dish_before.png" alt="dish_before"></p>
+<p><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/dish_after.png" alt="dish_after"></p>
+<p>点击DishesAdapter$1这个匿名对象</p>
+<p><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/observable.png" alt="dish_after"></p>
+<p>可以确定DishesAdapter去寻找RxViewObservable找，果然发现了泄漏点。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onBindViewHolder</span><span class="params">(<span class="keyword">final</span> DishesViewHolder holder, <span class="keyword">final</span> <span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">  <span class="comment">//略</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">null</span> != mOnClickItemListener) &#123;</span><br><span class="line">            RxView.longClicks(holder.itemView)</span><br><span class="line">                    .subscribe(<span class="keyword">new</span> RxViewObservable(mBasePresenter, mBaseView) &#123;</span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(@NonNull Boolean aBoolean)</span> </span>&#123;</span><br><span class="line">                            mOnClickItemListener.longClick(holder.itemView, position);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//略</span></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>原有同事设计。点餐机中，点餐界面是不亏销毁的。切换的时候，点餐界面隐藏/恢复。不断调用onBindViewHolder，不停创造长按点击事件的流，储存在点餐界面的Presenter中。因为一直没有清理。事件流会不停堆积。永远不会得到回收。</p>
+<p>甚至，在上下滑动，内存也会不停增加。</p>
+<p>点击DishesAdapter 的 List Objects，推断也得以印证</p>
+<p><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/list_object_in_adapter.png" alt="list_object_in_adapter"></p>
+<h2 id="问题点-二"><a href="#问题点-二" class="headerlink" title="问题点(二)"></a>问题点(二)</h2><p>打开第三份hprof</p>
+<p>直接找到DeviceItemVIew 的外部引用:</p>
+<p><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/view_click_device_item.png" alt="view_click_device_item"></p>
+<p>我查看了下代码。发现在onDestroyView的时候，收集器是得到清理的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDestroyView</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     compositeDisposable.clear();</span><br><span class="line">     <span class="keyword">super</span>.onDestroyView();</span><br><span class="line">     mIsDestroy = <span class="keyword">true</span>;</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> <span class="meta">@Override</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addDisposable</span><span class="params">(Disposable disposable)</span> </span>&#123;</span><br><span class="line">     compositeDisposable.add(disposable);</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> <span class="meta">@Override</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addRxViewDisposable</span><span class="params">(Disposable disposable)</span> </span>&#123;</span><br><span class="line">     compositeDisposable.add(disposable);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>那唯一的解释就是这个界面并没有销毁。</p>
+<p>跟踪代码，发现果然父Fragment进行replace的时候，进行操作的FragmentManager取的getFragmentManager(),即Activity的FragmentManager。所以直接添加到Activity上了，切换回点餐界面的时候,父Fragment被replace掉而它没有。并且，这个界面在里面注册了EventBus。查询硬件设备轮训会不断地发送EventBusEntity。在接收EventBus的时候,不停地replaceAllView，addView。但是理应被repalce掉的View依然被点击事件的Observable持有引用，得不到回收。ViewRender越积越多</p>
+<h1 id="后续解决"><a href="#后续解决" class="headerlink" title="后续解决:"></a>后续解决:</h1><h2 id="针对于问题点1："><a href="#针对于问题点1：" class="headerlink" title="针对于问题点1："></a>针对于问题点1：</h2><p>及时销毁无用的点击事件流</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">null</span> != mOnClickItemListener) &#123;</span><br><span class="line">       <span class="keyword">if</span> (holder.itemView.getTag() == <span class="keyword">null</span>) &#123;</span><br><span class="line">           RxViewObservable rxViewObservable = getRxViewObservable(holder, position);</span><br><span class="line">           RxView.longClicks(holder.itemView)</span><br><span class="line">                   .subscribe(rxViewObservable);</span><br><span class="line">           holder.itemView.setTag(position);</span><br><span class="line">           sparseArray.put(position, rxViewObservable.getDisposable());</span><br><span class="line">       &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((<span class="keyword">int</span>) holder.itemView.getTag() != position) &#123;</span><br><span class="line">           <span class="keyword">int</span> oldTag = (<span class="keyword">int</span>) holder.itemView.getTag();</span><br><span class="line">           Disposable disposable = sparseArray.get(oldTag);</span><br><span class="line">           <span class="keyword">if</span> (disposable != <span class="keyword">null</span>) &#123;</span><br><span class="line">               disposable.dispose();</span><br><span class="line">               sparseArray.remove(oldTag);</span><br><span class="line">           &#125;</span><br><span class="line">           RxViewObservable newOne = getRxViewObservable(holder, position);</span><br><span class="line">           holder.itemView.setTag(position);</span><br><span class="line">           RxView.longClicks(holder.itemView)</span><br><span class="line">                   .subscribe(newOne);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="针对于问题点2"><a href="#针对于问题点2" class="headerlink" title="针对于问题点2:"></a>针对于问题点2:</h2><p>使用控制子Fragment的FragmentManager</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ActivityUtils.replaceFragmentToActivity(getChildFragmentManager(), PeripheralTreeFragment.newInstance(), R.id.layout_setting_detail);</span><br></pre></td></tr></table></figure>
+
+<h2 id="反思"><a href="#反思" class="headerlink" title="反思"></a>反思</h2><p>用RxJava拦截时间做防误触，一定要小心。尤其是在本点餐机APP中，由于点餐界面的生命周期约等于APP使用的生命周期。所以对RxJava事件收集回收需要更多关注</p>
+
       
     </div>
     
@@ -305,6 +406,8 @@
         <div class="post-tags">
           
             <a href="../../../../tags/Android/" rel="tag"># Android</a>
+          
+            <a href="../../../../tags/%E6%97%A5%E5%B8%B8%E8%AE%B0%E5%BD%95/" rel="tag"># 日常记录</a>
           
         </div>
       
@@ -381,8 +484,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -423,7 +535,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="../../../../tags/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -462,6 +574,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#由crash开始"><span class="nav-number">1.</span> <span class="nav-text">由crash开始</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MAT的操作简要"><span class="nav-number">2.</span> <span class="nav-text">MAT的操作简要</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#界面展示"><span class="nav-number">2.1.</span> <span class="nav-text">界面展示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用操作"><span class="nav-number">2.2.</span> <span class="nav-text">常用操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#List-Objects"><span class="nav-number">2.2.1.</span> <span class="nav-text">List Objects</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Show-Objects-By-Class"><span class="nav-number">2.2.2.</span> <span class="nav-text">Show Objects By Class</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Path-To-GC-Roots"><span class="nav-number">2.2.3.</span> <span class="nav-text">Path To GC Roots</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析hprof"><span class="nav-number">3.</span> <span class="nav-text">分析hprof</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题点-一"><span class="nav-number">3.1.</span> <span class="nav-text">问题点(一)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题点-二"><span class="nav-number">3.2.</span> <span class="nav-text">问题点(二)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后续解决"><span class="nav-number">4.</span> <span class="nav-text">后续解决:</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#针对于问题点1："><span class="nav-number">4.1.</span> <span class="nav-text">针对于问题点1：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#针对于问题点2"><span class="nav-number">4.2.</span> <span class="nav-text">针对于问题点2:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反思"><span class="nav-number">4.3.</span> <span class="nav-text">反思</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       

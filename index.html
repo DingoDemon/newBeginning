@@ -410,9 +410,19 @@
 
       
         
-          
-            
-          
+          <blockquote>
+<p>项目是一个点餐App，点餐界面生命周期约等于App使用周期不会被销毁</p>
+</blockquote>
+<h1 id="由crash开始"><a href="#由crash开始" class="headerlink" title="由crash开始"></a>由crash开始</h1><p>QA进行一些操作之后，静置了一段时间后，App发生闪退，拿到当时的logcat，发现报错:</p>
+<p><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/error_log_01.png" alt="error_01"><br><img src="/2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/error_log_02.png" alt="error_02"></p>
+<p>其实在初始化的地方打断点也能分析。但是为了抓全选择使用MAT分析内存，事实证明，的确有意外收获。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1028,7 +1038,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="tags/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
