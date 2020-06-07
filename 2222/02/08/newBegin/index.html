@@ -325,8 +325,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="../../../../2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/" rel="next" title="记分析一次内存泄漏">
-                <i class="fa fa-chevron-left"></i> 记分析一次内存泄漏
+              <a href="../../../../2020/06/07/Binder/" rel="next" title="Binder">
+                <i class="fa fa-chevron-left"></i> Binder
               </a>
             
           </div>
@@ -365,7 +365,8 @@
   
     <div class="comments" id="comments">
       
-        <div id="gitment-container"></div>
+        <div onclick="showGitment()" id="gitment-display-button">显示 Gitment 评论</div>
+        <div id="gitment-container" style="display:none"></div>
       
     </div>
 
@@ -412,7 +413,7 @@
               
                 <a href="../../../../archives">
               
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -669,7 +670,7 @@
         var gitment = new Gitmint({
             id: window.location.pathname, 
             owner: '11937865',
-            repo: 'newBeginning',
+            repo: 'blogComment',
             
             lang: "" || navigator.language || navigator.systemLanguage || navigator.userLanguage,
             
@@ -684,7 +685,11 @@
       }
 
       
-      renderGitment();
+      function showGitment(){
+        document.getElementById("gitment-display-button").style.display = "none";
+        document.getElementById("gitment-container").style.display = "block";
+        renderGitment();
+      }
       
       </script>
     
