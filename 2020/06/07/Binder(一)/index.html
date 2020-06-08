@@ -89,8 +89,9 @@
 <meta property="og:image" content="http://yoursite.com/2020/06/07/Binder(%E4%B8%80)/space_linux.png">
 <meta property="og:image" content="http://yoursite.com/2020/06/07/Binder(%E4%B8%80)/traditional_ipc.png">
 <meta property="og:image" content="http://yoursite.com/2020/06/07/Binder(%E4%B8%80)/binder_ipc.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/07/Binder(%E4%B8%80)/server_manager.png">
 <meta property="article:published_time" content="2020-06-07T14:41:02.000Z">
-<meta property="article:modified_time" content="2020-06-08T13:54:35.044Z">
+<meta property="article:modified_time" content="2020-06-08T14:00:00.231Z">
 <meta property="article:author" content="DingoDemon">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Binder">
@@ -368,14 +369,14 @@
 <h2 id="多个应用也可以同享同一进程"><a href="#多个应用也可以同享同一进程" class="headerlink" title="多个应用也可以同享同一进程"></a>多个应用也可以同享同一进程</h2><p>同一开发者或组织开发的多应用可以共享同一个uid来运行在同一进程上。这通过定义 manifest 属性 android:sharedUserId 相同来做到。前提是这些应用的签名要相同。</p>
 <h1 id="多进程通信的方式"><a href="#多进程通信的方式" class="headerlink" title="多进程通信的方式"></a>多进程通信的方式</h1><h2 id="传统通信方式"><a href="#传统通信方式" class="headerlink" title="传统通信方式"></a>传统通信方式</h2><p>在Linux中分为Kernel space 和User space。</p>
 <p>Kernel space 是 Linux 内核的运行空间，User space 是用户程序的运行空间。为了安全，它们是隔离的，即使用户的程序崩溃了，内核也不受影响。</p>
-<p><img src="/2020/06/07/Binder(%E4%B8%80)/space_linux.png" alt></p>
+<p><img src="/2020/06/07/Binder(%E4%B8%80)/space_linux.png" alt="space_linux"></p>
 <p>内核可以无限调用系统资源，而User Space必须通过系统接口才能调用内核。</p>
 <blockquote>
 <p>copy_from_user() //将数据从用户空间拷贝到内核空间</p>
 <p>copy_to_user() //将数据从内核空间拷贝到用户空间</p>
 </blockquote>
 <p>既然如此，那么各个进程可以将数据拷贝到内核空间，然后再拷贝出来，实现进程间通信。</p>
-<p><img src="/2020/06/07/Binder(%E4%B8%80)/traditional_ipc.png" alt></p>
+<p><img src="/2020/06/07/Binder(%E4%B8%80)/traditional_ipc.png" alt="traditional_ipc"></p>
 <p>传统ipc机制存在两个问题:</p>
 <ol>
 <li>性能低下，一次数据传递需要经历：内存缓存区 –&gt; 内核缓存区 –&gt; 内存缓存区，需要 2 次数据拷贝；</li>
@@ -395,7 +396,7 @@
 <li>发送方进程通过copy_from_user()函数将数据拷贝 到内核中的内核缓存区，由于内核缓存区和接收进程的用户空间存在内存映射，因此也就相当于把数据发送到了接收进程的用户空间，这样便完成了一次进程间的通信。</li>
 </ol>
 <p>所以Binder虽然与传统ipc机制类似，但只用进行一次数据拷贝，提升了效率</p>
-<p><img src="/2020/06/07/Binder(%E4%B8%80)/binder_ipc.png" alt></p>
+<p><img src="/2020/06/07/Binder(%E4%B8%80)/binder_ipc.png" alt="binder_ipc"></p>
 <h2 id="Android中-常见的-IPC机制"><a href="#Android中-常见的-IPC机制" class="headerlink" title="Android中 常见的 IPC机制"></a>Android中 常见的 IPC机制</h2><table>
 <thead>
 <tr>
@@ -455,6 +456,7 @@
 <li>路由器再向IP地址发起请求</li>
 <li>最后Client 和 Server 进行连接。</li>
 </ol>
+<p><img src="/2020/06/07/Binder(%E4%B8%80)/server_manager.png" alt="server_manager"></p>
 <blockquote>
 <p>Binder 驱动就如同路由器一样，是整个通信的核心；驱动负责进程之间 Binder 通信的建立，Binder 在进程之间的传递，Binder 引用计数管理，数据包在进程之间的传递和交互等一系列底层支持。</p>
 </blockquote>
