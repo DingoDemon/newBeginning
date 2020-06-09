@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="../../../../lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="../../../../lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="../../../../css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="../../../../images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../../../../images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="../../../../images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,Binder," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Android中使用Binder进行跨进程通信一些基础类的定义IInterface定义了Server具有哪些能力 IBinder远程对象的接口，轻量级高性能跨进程调用的核心,远程对象的抽象协议。只要正确地实现了这个接口，这个对象就具备跨进程传输的能力。但是，不能实现这个接口。而是继承Binder类 Binder 和 BinderProxyBinder是对于IBinder接口的标准实现。Java 层">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Biner(二)">
+<meta property="og:url" content="http://yoursite.com/2020/06/09/Biner(%E4%BA%8C)/index.html">
+<meta property="og:site_name" content="DingoDemon">
+<meta property="og:description" content="Android中使用Binder进行跨进程通信一些基础类的定义IInterface定义了Server具有哪些能力 IBinder远程对象的接口，轻量级高性能跨进程调用的核心,远程对象的抽象协议。只要正确地实现了这个接口，这个对象就具备跨进程传输的能力。但是，不能实现这个接口。而是继承Binder类 Binder 和 BinderProxyBinder是对于IBinder接口的标准实现。Java 层">
+<meta property="og:image" content="http://yoursite.com/2020/06/09/Biner(%E4%BA%8C)/binder_transact.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/09/Biner(%E4%BA%8C)/single_process.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/09/Biner(%E4%BA%8C)/multiple_process.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/09/Biner(%E4%BA%8C)/binder_death.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/09/Biner(%E4%BA%8C)/same_uid.png">
+<meta property="og:image" content="http://yoursite.com/2020/06/09/Biner(%E4%BA%8C)/different_uid.png">
+<meta property="article:published_time" content="2020-06-09T03:59:05.000Z">
+<meta property="article:modified_time" content="2020-06-09T16:49:20.814Z">
+<meta property="article:author" content="DingoDemon">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="Binder">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/06/09/Biner(%E4%BA%8C)/binder_transact.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/06/09/Biner(二)/"/>
+
+
+
+
+
+  <title>Biner(二) | DingoDemon</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DingoDemon</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">welcome to my zone</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DingoDemon">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="../../../../images/Avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DingoDemon">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Biner(二)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-09T11:59:05+08:00">
+                2020-06-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Android中使用Binder进行跨进程通信"><a href="#Android中使用Binder进行跨进程通信" class="headerlink" title="Android中使用Binder进行跨进程通信"></a>Android中使用Binder进行跨进程通信</h1><h2 id="一些基础类的定义"><a href="#一些基础类的定义" class="headerlink" title="一些基础类的定义"></a>一些基础类的定义</h2><h3 id="IInterface"><a href="#IInterface" class="headerlink" title="IInterface"></a>IInterface</h3><p>定义了Server具有哪些能力</p>
+<h3 id="IBinder"><a href="#IBinder" class="headerlink" title="IBinder"></a>IBinder</h3><p>远程对象的接口，轻量级高性能跨进程调用的核心,远程对象的抽象协议。只要正确地实现了这个接口，这个对象就具备跨进程传输的能力。但是，不能实现这个接口。而是继承Binder类</p>
+<h3 id="Binder-和-BinderProxy"><a href="#Binder-和-BinderProxy" class="headerlink" title="Binder 和 BinderProxy"></a>Binder 和 BinderProxy</h3><p>Binder是对于IBinder接口的标准实现。Java 层的 Binder 类，代表的其实就是 Binder 本地对象。BinderProxy 类是 Binder 类的一个内部类，它代表远程进程的 Binder 对象的本地代理；这两个类都实现了 IBinder, 因而都具有跨进程传输的能力；实际上，在跨越进程的时候，Binder 驱动会自动完成这两个对象的转换。</p>
+<h3 id="Stub"><a href="#Stub" class="headerlink" title="Stub"></a>Stub</h3><p>AIDL 的时候，编译工具会给我们生成一个名为 Stub 的静态内部类；这个类继承了 Binder, 说明它是一个 Binder 本地对象，它实现了 IInterface 接口，表明它具有 Server 承诺给 Client 的能力；Stub 是一个抽象类，具体的 IInterface 的相关实现需要开发者自己实现。</p>
+<h4 id="public-static-abstract-class-Stub-extends-Binder-implements-lInterface"><a href="#public-static-abstract-class-Stub-extends-Binder-implements-lInterface" class="headerlink" title="public static abstract class Stub extends Binder implements lInterface"></a>public static abstract class Stub extends Binder implements lInterface</h4><a id="more"></a>
+
+<h2 id="实现一个跨进程通信的Demo"><a href="#实现一个跨进程通信的Demo" class="headerlink" title="实现一个跨进程通信的Demo"></a>实现一个跨进程通信的Demo</h2><p>通过AIDL语言，可以很好的实现AIDL也是官方推荐的，但是自己去写的话。可以更清晰地了解Java层Binder的原理。</p>
+<h3 id="IInterface定义行为"><a href="#IInterface定义行为" class="headerlink" title="IInterface定义行为"></a>IInterface定义行为</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ToJsonInterface</span> <span class="keyword">extends</span> <span class="title">IInterface</span> </span>&#123;</span><br><span class="line">    <span class="function">OutBean <span class="title">getResultBean</span><span class="params">(InBean inBean)</span> <span class="keyword">throws</span> RemoteException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Stub的实现"><a href="#Stub的实现" class="headerlink" title="Stub的实现"></a>Stub的实现</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">ToJsonStub</span> <span class="keyword">extends</span> <span class="title">Binder</span> <span class="keyword">implements</span> <span class="title">ToJsonInterface</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"Dingo"</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String DESCRIPTOR = <span class="string">"com.example.dingopractice.binder.ToJsonStub"</span>;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> TRANSACTION_getResultBean = (android.os.IBinder.FIRST_CALL_TRANSACTION);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ToJsonStub</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.attachInterface(<span class="keyword">this</span>, DESCRIPTOR);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ToJsonInterface <span class="title">asInterface</span><span class="params">(IBinder binder)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (binder == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        IInterface iin = binder.queryLocalInterface(ToJsonStub.DESCRIPTOR);</span><br><span class="line">        <span class="keyword">if</span> (iin <span class="keyword">instanceof</span> ToJsonInterface)</span><br><span class="line">            <span class="keyword">return</span> (ToJsonInterface) iin;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ToJsonProxy(binder);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">onTransact</span><span class="params">(<span class="keyword">int</span> code, Parcel data,  Parcel reply, <span class="keyword">int</span> flags)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">switch</span> (code) &#123;</span><br><span class="line">            <span class="keyword">case</span> INTERFACE_TRANSACTION: &#123;</span><br><span class="line">                reply.writeString(DESCRIPTOR);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">case</span> TRANSACTION_getResultBean:</span><br><span class="line">                data.enforceInterface(DESCRIPTOR);</span><br><span class="line">                InBean inBean = <span class="keyword">null</span>;</span><br><span class="line">                <span class="keyword">if</span> (data.readInt() != <span class="number">0</span>)</span><br><span class="line">                    inBean = InBean.CREATOR.createFromParcel(data);</span><br><span class="line">                OutBean outBean = getResultBean(inBean);</span><br><span class="line">                reply.writeNoException();</span><br><span class="line">                outBean.writeToParcel(reply, android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">super</span>.onTransact(code, data, reply, flags);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">asBinder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="DESCRIPTOR"><a href="#DESCRIPTOR" class="headerlink" title="DESCRIPTOR"></a>DESCRIPTOR</h4><p>代表了Binder的唯一标示。</p>
+<h4 id="attachInterface"><a href="#attachInterface" class="headerlink" title="attachInterface"></a>attachInterface</h4><p>attachInterface的时候给Binder赋值自身和DESCRIPTOR,标示本地Binder对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Convenience method for associating a specific interface with the Binder.</span></span><br><span class="line"><span class="comment">    * After calling, queryLocalInterface() will be implemented for you</span></span><br><span class="line"><span class="comment">    * to return the given owner IInterface when the corresponding</span></span><br><span class="line"><span class="comment">    * descriptor is requested.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">attachInterface</span><span class="params">(@Nullable IInterface owner, @Nullable String descriptor)</span> </span>&#123;</span><br><span class="line">       mOwner = owner;</span><br><span class="line">       mDescriptor = descriptor;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<h4 id="queryLocalInterface"><a href="#queryLocalInterface" class="headerlink" title="queryLocalInterface"></a>queryLocalInterface</h4><p>查询本地的时候就会用到初始化中储存的值，来判断是同进程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="meta">@Nullable</span> <span class="function">IInterface <span class="title">queryLocalInterface</span><span class="params">(@NonNull String descriptor)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (mDescriptor != <span class="keyword">null</span> &amp;&amp; mDescriptor.equals(descriptor)) &#123;</span><br><span class="line">           <span class="keyword">return</span> mOwner;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="onTransact"><a href="#onTransact" class="headerlink" title="onTransact"></a>onTransact</h4><p>这个方法运行在服务端的线程池中，通过code找到对应方法，从数据中读取data，处理完后在reply中写入返回值。返回值表示这次请求是否成功。</p>
+<p>在onTransact中 打印Thread</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Log.e(<span class="string">"dingo"</span>, <span class="string">"do on: "</span> + Thread.currentThread().getName());</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>`13731-13744/com.example.dingopractice.remote E/dingo: do on: Binder:13731_2</p>
+<p><code>com.example.dingopractice.remote I/System.out: java.lang.ThreadGroup[name=main,maxpri=10]</code></p>
+</blockquote>
+<h3 id="Proxy"><a href="#Proxy" class="headerlink" title="Proxy"></a>Proxy</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ToJsonProxy</span> <span class="keyword">implements</span> <span class="title">ToJsonInterface</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> IBinder remote;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ToJsonProxy</span><span class="params">(IBinder remote)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.remote = remote;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">asBinder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> remote;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> OutBean <span class="title">getResultBean</span><span class="params">(InBean inBean)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">        android.os.Parcel data = android.os.Parcel.obtain();</span><br><span class="line">        android.os.Parcel reply = android.os.Parcel.obtain();</span><br><span class="line">        OutBean result;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            data.writeInterfaceToken(ToJsonStub.DESCRIPTOR);</span><br><span class="line">            data.writeInt(<span class="number">1</span>);</span><br><span class="line">            inBean.writeToParcel(data, <span class="number">0</span>);</span><br><span class="line">            remote.transact(ToJsonStub.TRANSACTION_getResultBean, data, reply, <span class="number">0</span>);</span><br><span class="line">            reply.readException();</span><br><span class="line">            result = OutBean.CREATOR.createFromParcel(reply);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            reply.recycle();</span><br><span class="line">            data.recycle();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>getResultBean 运行在客户端</p>
+<p>将数据写入data，然后调用远程对象发起RPC(远程调用)，同时将当前线程挂起，等待返回。服务端执行onTransact 后，将数据写入reply，当前线程继续执行，从reply中读出结果</p>
+<p><img src="/2020/06/09/Biner(%E4%BA%8C)/binder_transact.png" alt="binder_transact"></p>
+<h4 id="Service-和-绑定它的Activity中"><a href="#Service-和-绑定它的Activity中" class="headerlink" title="Service 和 绑定它的Activity中"></a>Service 和 绑定它的Activity中</h4><p>绑定Service</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MainActivity.<span class="keyword">this</span>.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);</span><br></pre></td></tr></table></figure>
+
+<p>调用远程获取数据</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">OutBean outBean = toJsonInterface.getResultBean(<span class="keyword">new</span> InBean(<span class="number">1</span>, System.currentTimeMillis()));</span><br></pre></td></tr></table></figure>
+
+<p>实现Stub,在onBind中返回</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">private</span> ToJsonInterface stub = <span class="keyword">new</span> ToJsonStub() &#123;</span><br><span class="line">       <span class="meta">@Override</span></span><br><span class="line">       <span class="function"><span class="keyword">public</span> OutBean <span class="title">getResultBean</span><span class="params">(InBean inBean)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">           Gson gson = <span class="keyword">new</span> Gson();</span><br><span class="line">           String result = gson.toJson(inBean);</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">new</span> OutBean(result);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>&#123;</span><br><span class="line">       Log.e(TAG, <span class="string">"onBind"</span>);</span><br><span class="line">       <span class="keyword">return</span> stub.asBinder();</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="不同进程之间IBinder的转换"><a href="#不同进程之间IBinder的转换" class="headerlink" title="不同进程之间IBinder的转换"></a>不同进程之间IBinder的转换</h3><h4 id="单进程里-onServiceConnected-回调的-IBinder"><a href="#单进程里-onServiceConnected-回调的-IBinder" class="headerlink" title="单进程里 onServiceConnected 回调的 IBinder"></a>单进程里 onServiceConnected 回调的 IBinder</h4><p>就是Stub对象</p>
+<p><img src="/2020/06/09/Biner(%E4%BA%8C)/single_process.png" alt="single_process"></p>
+<h4 id="多进程里-onServiceConnected-回调的-IBinder"><a href="#多进程里-onServiceConnected-回调的-IBinder" class="headerlink" title="多进程里 onServiceConnected 回调的 IBinder"></a>多进程里 onServiceConnected 回调的 IBinder</h4><p>被调换撑了BinderProxy</p>
+<p><img src="/2020/06/09/Biner(%E4%BA%8C)/multiple_process.png" alt="multiple_process"></p>
+<h2 id="Binder-死亡通知"><a href="#Binder-死亡通知" class="headerlink" title="Binder 死亡通知"></a>Binder 死亡通知</h2><p>如果服务端意外退出。那么客户端请求会不停失败，可以通过IBinder.DeathRecipient来接收Binder死亡通知，进行一些重新连接的步骤:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> ToJsonInterface toJsonInterface;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> ServiceConnection serviceConnection = <span class="keyword">new</span> ServiceConnection() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceConnected</span><span class="params">(ComponentName name, IBinder service)</span> </span>&#123;</span><br><span class="line">          toJsonInterface = ToJsonStub.asInterface(service);</span><br><span class="line">          <span class="keyword">try</span> &#123;</span><br><span class="line">              toJsonInterface.asBinder().linkToDeath(deathRecipient, <span class="number">0</span>);</span><br><span class="line">          &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">              e.printStackTrace();</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceDisconnected</span><span class="params">(ComponentName name)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line">  &#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> IBinder.DeathRecipient deathRecipient = <span class="keyword">new</span> IBinder.DeathRecipient() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">binderDied</span><span class="params">()</span> </span>&#123;</span><br><span class="line">          Log.e(TAG, <span class="string">"mDeathRecipient--&gt;binderDied--&gt;"</span>);</span><br><span class="line">          <span class="keyword">if</span> (toJsonInterface == <span class="keyword">null</span>) &#123;</span><br><span class="line">              <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          toJsonInterface.asBinder().unlinkToDeath(deathRecipient, <span class="number">0</span>);</span><br><span class="line">          toJsonInterface = <span class="keyword">null</span>;</span><br><span class="line">          <span class="comment">//Binder死亡，重新绑定服务</span></span><br><span class="line">          Log.e(TAG, <span class="string">"mDeathRecipient--&gt;重新bindService"</span>);</span><br><span class="line">          Intent intent = <span class="keyword">new</span> Intent(MainActivity.<span class="keyword">this</span>, MyService<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">          bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line">  &#125;;</span><br></pre></td></tr></table></figure>
+<p><img src="/2020/06/09/Biner(%E4%BA%8C)/binder_death.png" alt="binder_death"></p>
+<h2 id="Binder鉴权"><a href="#Binder鉴权" class="headerlink" title="Binder鉴权"></a>Binder鉴权</h2><h3 id="通过权限验证"><a href="#通过权限验证" class="headerlink" title="通过权限验证"></a>通过权限验证</h3><p>在manifest中声明用户权限</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"com.example.dingopractice.ACCESS_MY_BINDER_SERVICE"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">permission</span>      </span></span><br><span class="line"><span class="tag">	<span class="attr">android:name</span>=<span class="string">"com.example.dingopractice.ACCESS_MY_BINDER_SERVICE"</span></span></span><br><span class="line"><span class="tag">	<span class="attr">android:protectionLevel</span>=<span class="string">"normal"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以在onTransact中进行拦截</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">onTransact</span><span class="params">(<span class="keyword">int</span> code, @NonNull Parcel data, @Nullable Parcel reply, <span class="keyword">int</span> flags)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">          <span class="keyword">int</span> check = checkCallingOrSelfPermission(<span class="string">"com.example.dingopractice.ACCESS_MY_BINDER_SERVICE"</span>);</span><br><span class="line">          <span class="keyword">if</span> (check == PackageManager.PERMISSION_DENIED) &#123;</span><br><span class="line">              Log.e(TAG, <span class="string">"PERMISSION_DENIED"</span>);</span><br><span class="line">              <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">//略...</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="通过包名来验证"><a href="#通过包名来验证" class="headerlink" title="通过包名来验证"></a>通过包名来验证</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">onTransact</span><span class="params">(<span class="keyword">int</span> code, @NonNull Parcel data, @Nullable Parcel reply, <span class="keyword">int</span> flags)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">            String packageName = <span class="string">""</span>;</span><br><span class="line">            String[] packages = getPackageManager().getPackagesForUid(getCallingUid());</span><br><span class="line">            <span class="keyword">if</span> (packages != <span class="keyword">null</span> &amp;&amp; packages.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                packageName = packages[<span class="number">0</span>];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (!packageName.startsWith(<span class="string">"com.example.dingopractice"</span>)) &#123;</span><br><span class="line">                Log.e(TAG, <span class="string">"PACKAGE_NOT_MATCH"</span>);</span><br><span class="line"><span class="comment">//                throw new RemoteException("dingo PACKAGE_NOT_MATCH");</span></span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//略...</span></span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="通过UID"><a href="#通过UID" class="headerlink" title="通过UID"></a>通过UID</h3><p>通过调用者和自身UID不同的话，onTransact返回false</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Log.e(TAG, <span class="string">"self uid: "</span> + getSelfUid());</span><br><span class="line">Log.e(TAG, <span class="string">"call uid: "</span> + getCallingUid());</span><br></pre></td></tr></table></figure>
+
+<h4 id="同一应用调用"><a href="#同一应用调用" class="headerlink" title="同一应用调用"></a>同一应用调用</h4><p><img src="/2020/06/09/Biner(%E4%BA%8C)/same_uid.png" alt="same_uid"></p>
+<h4 id="其他应用调用"><a href="#其他应用调用" class="headerlink" title="其他应用调用"></a>其他应用调用</h4><p><img src="/2020/06/09/Biner(%E4%BA%8C)/different_uid.png" alt="different_uid"></p>
+<h2 id="Binder连接池"><a href="#Binder连接池" class="headerlink" title="Binder连接池"></a>Binder连接池</h2><blockquote>
+<p>参考《Android开发艺术探索》</p>
+</blockquote>
+<p>如果有一个业务需要Binder，就创建一个Service的话。那么一百个业务需要创建一百个Binder就产生了一百个Service。</p>
+<p>业务可能会不停增长，但是Service做为四大组件不能。</p>
+<p>对于每个AIDL接口，分别实现对应的Binder。统一一个service，然后每次bind service的时候，通过一个连接池来进行Binder分发，queryBinder里面通过请求的code来决定分配哪个Binder。</p>
+<p>这样，就可以避免随着项目模块的增多，service变多，每次有新模块接口增加的时候，只需要在queryBinder里的switch新加一个case判断即可，且能实现模块间的解耦和service与模块具体实现之间的解耦，一举两得。</p>
+<h3 id="定义业务-AIDL"><a href="#定义业务-AIDL" class="headerlink" title="定义业务 AIDL"></a>定义业务 AIDL</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//GetJsonBeanInterface.aidl</span></span><br><span class="line"><span class="keyword">package</span> com.example.dingopractice;</span><br><span class="line"><span class="keyword">import</span> com.example.dingopractice.ABean;</span><br><span class="line"><span class="keyword">import</span> com.example.dingopractice.BBean;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">GetJsonBeanInterface</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">     <span class="function">BBean <span class="title">addBean</span> <span class="params">(inout ABean inBean)</span> </span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AddInterface.aidl</span></span><br><span class="line"><span class="keyword">package</span> com.example.dingopractice;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">AddInterface</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">     <span class="function"><span class="keyword">int</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>经系统生成Stub类后，完成具体实现,用Sleep模拟耗时操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GetJsonBeanStubImpl</span> <span class="keyword">extends</span> <span class="title">GetJsonBeanInterface</span>.<span class="title">Stub</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">basicTypes</span><span class="params">(<span class="keyword">int</span> anInt, <span class="keyword">long</span> aLong, <span class="keyword">boolean</span> aBoolean, <span class="keyword">float</span> aFloat, <span class="keyword">double</span> aDouble, String aString)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> BBean <span class="title">addBean</span><span class="params">(ABean inBean)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">3000</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> BBean(inBean.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AddStubImpl</span> <span class="keyword">extends</span> <span class="title">AddInterface</span>.<span class="title">Stub</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> a + b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="定义querryBinder-AIDL"><a href="#定义querryBinder-AIDL" class="headerlink" title="定义querryBinder AIDL"></a>定义querryBinder AIDL</h3><p>通过Code 返回对应的Binder</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// QueryBinder.aidl</span></span><br><span class="line"><span class="keyword">package</span> com.example.dingopractice;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">QueryBinder</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function">IBinder <span class="title">queryBinder</span><span class="params">(<span class="keyword">int</span> binderCode)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>并完成具体实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">QueryBinderImpl</span> <span class="keyword">extends</span> <span class="title">QueryBinder</span>.<span class="title">Stub</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">queryBinder</span><span class="params">(<span class="keyword">int</span> binderCode)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">        IBinder iBinder = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">switch</span> (binderCode) &#123;</span><br><span class="line">            <span class="keyword">case</span> BINDER_GET_JSON:</span><br><span class="line">                iBinder = <span class="keyword">new</span> GetJsonBeanStubImpl();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> BINDER_ADD:</span><br><span class="line">                iBinder = <span class="keyword">new</span> AddStubImpl();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> iBinder;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>全局Service</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BinderPoolService</span> <span class="keyword">extends</span> <span class="title">AbstractLifeCircleService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"dingo#BinderPoolService"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Binder mBinderPool = <span class="keyword">new</span> QueryBinderImpl();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>&#123;</span><br><span class="line">        Log.e(TAG, <span class="string">"onBind"</span>);</span><br><span class="line">        <span class="keyword">return</span> mBinderPool;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="BinderPool"><a href="#BinderPool" class="headerlink" title="BinderPool"></a>BinderPool</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BinderPool</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"dingo#BinderPoolService"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> BINDER_NONE = -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> BINDER_GET_JSON = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> BINDER_ADD = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Context mContext;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> QueryBinder queryBinder;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> BinderPool sInstance;</span><br><span class="line">    <span class="keyword">private</span> CountDownLatch countDownLatch;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">BinderPool</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        mContext = context.getApplicationContext();</span><br><span class="line">        connectService();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> BinderPool <span class="title">getInstance</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (sInstance == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (BinderPool<span class="class">.<span class="keyword">class</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (sInstance == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    sInstance = <span class="keyword">new</span> BinderPool(context);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sInstance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> ServiceConnection serviceConnection = <span class="keyword">new</span> ServiceConnection() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceConnected</span><span class="params">(ComponentName name, IBinder service)</span> </span>&#123;</span><br><span class="line">            queryBinder = QueryBinderImpl.Stub.asInterface(service);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                queryBinder.asBinder().linkToDeath(deathRecipient, <span class="number">0</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            countDownLatch.countDown();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceDisconnected</span><span class="params">(ComponentName name)</span> </span>&#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Binder.DeathRecipient deathRecipient = <span class="keyword">new</span> IBinder.DeathRecipient() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">binderDied</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            queryBinder.asBinder().unlinkToDeath(deathRecipient, <span class="number">0</span>);</span><br><span class="line">            queryBinder = <span class="keyword">null</span>;</span><br><span class="line">            connectService();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">connectService</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        Intent serviceIntent = <span class="keyword">new</span> Intent(mContext, BinderPoolService<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        mContext.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            countDownLatch.await();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">queryBinder</span><span class="params">(<span class="keyword">int</span> binderCode)</span> </span>&#123;</span><br><span class="line">        IBinder iBinder = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (queryBinder != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                iBinder = queryBinder.queryBinder(binderCode);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> iBinder;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="CountDownLatch"><a href="#CountDownLatch" class="headerlink" title="CountDownLatch"></a>CountDownLatch</h4><blockquote>
+<p>CountDown 是倒计时的意思，Latch 是门栓的意思，加起来的意思就是一个倒计时的门栓。</p>
+</blockquote>
+<p>CountDownLatch 是一个一次性的拦截工具，与Thread.join类似。调用 CountDownLatch 的 await() 方法，会开始阻塞，直到 CountDownLatch 的 count 为 0 才继续执行。绑定Service是一个异步的过程这里使用Sync + CountDownLatch  将异步转化为同步</p>
+<h3 id="测试代码"><a href="#测试代码" class="headerlink" title="测试代码"></a>测试代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">testBinderPool</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       BinderPool mBinderPool = BinderPool.getInstance(MainActivity.<span class="keyword">this</span>);</span><br><span class="line">       <span class="comment">//测试GetJsonBeanInterface</span></span><br><span class="line">       IBinder getJson = mBinderPool.queryBinder(BinderPool.BINDER_GET_JSON);</span><br><span class="line">       GetJsonBeanInterface getJsonBeanInterface = GetJsonBeanInterface.Stub.asInterface(getJson);</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           Log.e(TAG, <span class="string">"B = "</span> + getJsonBeanInterface.addBean(<span class="keyword">new</span> ABean(<span class="number">1</span>, System.currentTimeMillis())));</span><br><span class="line">       &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">           e.printStackTrace();</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">//测试AddInterface</span></span><br><span class="line">       IBinder mUserBinder = mBinderPool.queryBinder(BinderPool.BINDER_ADD);</span><br><span class="line">       AddInterface addInterface = AddStubImpl.Stub.asInterface(mUserBinder);</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           Log.e(TAG, <span class="string">"5+8 "</span> + addInterface.add(<span class="number">5</span>, <span class="number">8</span>));</span><br><span class="line">       &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">           e.printStackTrace();</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="输出结果"><a href="#输出结果" class="headerlink" title="输出结果"></a>输出结果</h3><p><code>8369-8384/com.example.dingopractice E/dingo!@: B = OutBean{string=&#39;InBean{anInt=1, cs=1591718024592}&#39;}</code></p>
+<p><code>8369-8384/com.example.dingopractice E/dingo!@: 5+8 13</code></p>
+<p>调用远程服务，无论是绑定Service抑或是远程方法，都有耗时风险，有可能引发ANR。所以需要放在子线程进行</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="../../../../tags/Android/" rel="tag"># Android</a>
+          
+            <a href="../../../../tags/Binder/" rel="tag"># Binder</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="../../07/Binder(%E4%B8%80)/" rel="next" title="Binder(一)">
+                <i class="fa fa-chevron-left"></i> Binder(一)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="../../../../2222/02/08/newBegin/" rel="prev" title="序">
+                序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="../../../../images/Avatar.png"
+                alt="DingoDemon" />
+            
+              <p class="site-author-name" itemprop="name">DingoDemon</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="../../../../archives">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="../../../../tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:wangdingyusg@163.com" target="_blank" title="Email">
+                      
+                        <i class="fa fa-fw fa-globe"></i>Email</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/DingoDemon" target="_blank" title="github">
+                      
+                        <i class="fa fa-fw fa-globe"></i>github</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Android中使用Binder进行跨进程通信"><span class="nav-number">1.</span> <span class="nav-text">Android中使用Binder进行跨进程通信</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一些基础类的定义"><span class="nav-number">1.1.</span> <span class="nav-text">一些基础类的定义</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#IInterface"><span class="nav-number">1.1.1.</span> <span class="nav-text">IInterface</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IBinder"><span class="nav-number">1.1.2.</span> <span class="nav-text">IBinder</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-和-BinderProxy"><span class="nav-number">1.1.3.</span> <span class="nav-text">Binder 和 BinderProxy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stub"><span class="nav-number">1.1.4.</span> <span class="nav-text">Stub</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#public-static-abstract-class-Stub-extends-Binder-implements-lInterface"><span class="nav-number">1.1.4.1.</span> <span class="nav-text">public static abstract class Stub extends Binder implements lInterface</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现一个跨进程通信的Demo"><span class="nav-number">1.2.</span> <span class="nav-text">实现一个跨进程通信的Demo</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#IInterface定义行为"><span class="nav-number">1.2.1.</span> <span class="nav-text">IInterface定义行为</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stub的实现"><span class="nav-number">1.2.2.</span> <span class="nav-text">Stub的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DESCRIPTOR"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">DESCRIPTOR</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#attachInterface"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">attachInterface</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#queryLocalInterface"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">queryLocalInterface</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#onTransact"><span class="nav-number">1.2.2.4.</span> <span class="nav-text">onTransact</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Proxy"><span class="nav-number">1.2.3.</span> <span class="nav-text">Proxy</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Service-和-绑定它的Activity中"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">Service 和 绑定它的Activity中</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不同进程之间IBinder的转换"><span class="nav-number">1.2.4.</span> <span class="nav-text">不同进程之间IBinder的转换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#单进程里-onServiceConnected-回调的-IBinder"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">单进程里 onServiceConnected 回调的 IBinder</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多进程里-onServiceConnected-回调的-IBinder"><span class="nav-number">1.2.4.2.</span> <span class="nav-text">多进程里 onServiceConnected 回调的 IBinder</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Binder-死亡通知"><span class="nav-number">1.3.</span> <span class="nav-text">Binder 死亡通知</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Binder鉴权"><span class="nav-number">1.4.</span> <span class="nav-text">Binder鉴权</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#通过权限验证"><span class="nav-number">1.4.1.</span> <span class="nav-text">通过权限验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过包名来验证"><span class="nav-number">1.4.2.</span> <span class="nav-text">通过包名来验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过UID"><span class="nav-number">1.4.3.</span> <span class="nav-text">通过UID</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#同一应用调用"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">同一应用调用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他应用调用"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">其他应用调用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Binder连接池"><span class="nav-number">1.5.</span> <span class="nav-text">Binder连接池</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义业务-AIDL"><span class="nav-number">1.5.1.</span> <span class="nav-text">定义业务 AIDL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#定义querryBinder-AIDL"><span class="nav-number">1.5.2.</span> <span class="nav-text">定义querryBinder AIDL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BinderPool"><span class="nav-number">1.5.3.</span> <span class="nav-text">BinderPool</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CountDownLatch"><span class="nav-number">1.5.3.1.</span> <span class="nav-text">CountDownLatch</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试代码"><span class="nav-number">1.5.4.</span> <span class="nav-text">测试代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#输出结果"><span class="nav-number">1.5.5.</span> <span class="nav-text">输出结果</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DingoDemon</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="../../../../js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="../../../../js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="../../../../js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="../../../../js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="../../../../js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="../../../../js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="../../../../js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
