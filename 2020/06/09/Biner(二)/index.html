@@ -92,7 +92,7 @@
 <meta property="og:image" content="http://yoursite.com/2020/06/09/Biner(%E4%BA%8C)/same_uid.png">
 <meta property="og:image" content="http://yoursite.com/2020/06/09/Biner(%E4%BA%8C)/different_uid.png">
 <meta property="article:published_time" content="2020-06-09T03:59:05.000Z">
-<meta property="article:modified_time" content="2020-06-09T16:49:20.814Z">
+<meta property="article:modified_time" content="2020-06-09T16:53:44.971Z">
 <meta property="article:author" content="DingoDemon">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Binder">
@@ -339,7 +339,7 @@
 
 <h3 id="不同进程之间IBinder的转换"><a href="#不同进程之间IBinder的转换" class="headerlink" title="不同进程之间IBinder的转换"></a>不同进程之间IBinder的转换</h3><h4 id="单进程里-onServiceConnected-回调的-IBinder"><a href="#单进程里-onServiceConnected-回调的-IBinder" class="headerlink" title="单进程里 onServiceConnected 回调的 IBinder"></a>单进程里 onServiceConnected 回调的 IBinder</h4><p>就是Stub对象</p>
 <p><img src="/2020/06/09/Biner(%E4%BA%8C)/single_process.png" alt="single_process"></p>
-<h4 id="多进程里-onServiceConnected-回调的-IBinder"><a href="#多进程里-onServiceConnected-回调的-IBinder" class="headerlink" title="多进程里 onServiceConnected 回调的 IBinder"></a>多进程里 onServiceConnected 回调的 IBinder</h4><p>被调换撑了BinderProxy</p>
+<h4 id="多进程里-onServiceConnected-回调的-IBinder"><a href="#多进程里-onServiceConnected-回调的-IBinder" class="headerlink" title="多进程里 onServiceConnected 回调的 IBinder"></a>多进程里 onServiceConnected 回调的 IBinder</h4><p>被调换成了BinderProxy</p>
 <p><img src="/2020/06/09/Biner(%E4%BA%8C)/multiple_process.png" alt="multiple_process"></p>
 <h2 id="Binder-死亡通知"><a href="#Binder-死亡通知" class="headerlink" title="Binder 死亡通知"></a>Binder 死亡通知</h2><p>如果服务端意外退出。那么客户端请求会不停失败，可以通过IBinder.DeathRecipient来接收Binder死亡通知，进行一些重新连接的步骤:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> ToJsonInterface toJsonInterface;</span><br></pre></td></tr></table></figure>
@@ -398,7 +398,7 @@
 
 <h3 id="输出结果"><a href="#输出结果" class="headerlink" title="输出结果"></a>输出结果</h3><p><code>8369-8384/com.example.dingopractice E/dingo!@: B = OutBean{string=&#39;InBean{anInt=1, cs=1591718024592}&#39;}</code></p>
 <p><code>8369-8384/com.example.dingopractice E/dingo!@: 5+8 13</code></p>
-<p>调用远程服务，无论是绑定Service抑或是远程方法，都有耗时风险，有可能引发ANR。所以需要放在子线程进行</p>
+<p>调用远程服务，无论是绑定Service亦或是远程方法，都有耗时风险，有可能引发ANR。所以需要放在子线程进行</p>
 
       
     </div>
