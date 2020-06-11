@@ -79,19 +79,19 @@
 
 
 
-<meta name="description" content="谢鸣写给 Android 应用工程师的 Binder 原理剖析 深入理解Binder Android Binder原理（一）学习Binder前必须要了解的知识点 什么是BinderBinder按层可分类为  Java Binder Native Binder Kernel Binder  Binder按职责可分类为  Binder可以是一种进程间通信的方式，翻译为胶水，将两个进程牢牢的粘在一起。">
+<meta name="description" content="鸣谢写给 Android 应用工程师的 Binder 原理剖析 深入理解Binder Android Binder原理（一）学习Binder前必须要了解的知识点 什么是BinderBinder按层可分类为  Java Binder Native Binder Kernel Binder  Binder按职责可分类为  Binder可以是一种进程间通信的方式，翻译为胶水，将两个进程牢牢的粘在一起。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Binder(一)">
 <meta property="og:url" content="http://yoursite.com/2020/06/07/Binder(%E4%B8%80)/index.html">
 <meta property="og:site_name" content="DingoDemon">
-<meta property="og:description" content="谢鸣写给 Android 应用工程师的 Binder 原理剖析 深入理解Binder Android Binder原理（一）学习Binder前必须要了解的知识点 什么是BinderBinder按层可分类为  Java Binder Native Binder Kernel Binder  Binder按职责可分类为  Binder可以是一种进程间通信的方式，翻译为胶水，将两个进程牢牢的粘在一起。">
+<meta property="og:description" content="鸣谢写给 Android 应用工程师的 Binder 原理剖析 深入理解Binder Android Binder原理（一）学习Binder前必须要了解的知识点 什么是BinderBinder按层可分类为  Java Binder Native Binder Kernel Binder  Binder按职责可分类为  Binder可以是一种进程间通信的方式，翻译为胶水，将两个进程牢牢的粘在一起。">
 <meta property="og:image" content="http://yoursite.com/2020/06/07/Binder(%E4%B8%80)/same_uid.png">
 <meta property="og:image" content="http://yoursite.com/2020/06/07/Binder(%E4%B8%80)/space_linux.png">
 <meta property="og:image" content="http://yoursite.com/2020/06/07/Binder(%E4%B8%80)/traditional_ipc.png">
 <meta property="og:image" content="http://yoursite.com/2020/06/07/Binder(%E4%B8%80)/binder_ipc.png">
 <meta property="og:image" content="http://yoursite.com/2020/06/07/Binder(%E4%B8%80)/server_manager.png">
 <meta property="article:published_time" content="2020-06-07T14:41:02.000Z">
-<meta property="article:modified_time" content="2020-06-09T02:54:35.718Z">
+<meta property="article:modified_time" content="2020-06-11T04:02:33.075Z">
 <meta property="article:author" content="DingoDemon">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Binder">
@@ -296,7 +296,7 @@
       
 
       
-        <h4 id="谢鸣"><a href="#谢鸣" class="headerlink" title="谢鸣"></a>谢鸣</h4><p><a href="https://juejin.im/post/5acccf845188255c3201100f" target="_blank" rel="noopener">写给 Android 应用工程师的 Binder 原理剖析</a></p>
+        <h4 id="鸣谢"><a href="#鸣谢" class="headerlink" title="鸣谢"></a>鸣谢</h4><p><a href="https://juejin.im/post/5acccf845188255c3201100f" target="_blank" rel="noopener">写给 Android 应用工程师的 Binder 原理剖析</a></p>
 <p><a href="https://yuqirong.me/2019/05/21/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Binder/#comments" target="_blank" rel="noopener">深入理解Binder</a></p>
 <p><a href="https://juejin.im/post/5db07d9a6fb9a020333c2d10" target="_blank" rel="noopener">Android Binder原理（一）学习Binder前必须要了解的知识点</a></p>
 <h1 id="什么是Binder"><a href="#什么是Binder" class="headerlink" title="什么是Binder"></a>什么是Binder</h1><p>Binder按层可分类为</p>
@@ -603,7 +603,7 @@
               
                 <a href="../../../../archives">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -674,7 +674,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#谢鸣"><span class="nav-number">1.</span> <span class="nav-text">谢鸣</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是Binder"><span class="nav-number"></span> <span class="nav-text">什么是Binder</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么需要进程间通信"><span class="nav-number"></span> <span class="nav-text">为什么需要进程间通信</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一个应用可以开启多线程"><span class="nav-number"></span> <span class="nav-text">一个应用可以开启多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多个应用也可以同享同一进程"><span class="nav-number"></span> <span class="nav-text">多个应用也可以同享同一进程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#多进程通信的方式"><span class="nav-number"></span> <span class="nav-text">多进程通信的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#传统通信方式"><span class="nav-number"></span> <span class="nav-text">传统通信方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Binder"><span class="nav-number"></span> <span class="nav-text">Binder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android中-常见的-IPC机制"><span class="nav-number"></span> <span class="nav-text">Android中 常见的 IPC机制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Binder-通信模型"><span class="nav-number"></span> <span class="nav-text">Binder 通信模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Binder-的定义"><span class="nav-number"></span> <span class="nav-text">Binder 的定义</span></a></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#鸣谢"><span class="nav-number">1.</span> <span class="nav-text">鸣谢</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是Binder"><span class="nav-number"></span> <span class="nav-text">什么是Binder</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么需要进程间通信"><span class="nav-number"></span> <span class="nav-text">为什么需要进程间通信</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一个应用可以开启多线程"><span class="nav-number"></span> <span class="nav-text">一个应用可以开启多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多个应用也可以同享同一进程"><span class="nav-number"></span> <span class="nav-text">多个应用也可以同享同一进程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#多进程通信的方式"><span class="nav-number"></span> <span class="nav-text">多进程通信的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#传统通信方式"><span class="nav-number"></span> <span class="nav-text">传统通信方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Binder"><span class="nav-number"></span> <span class="nav-text">Binder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android中-常见的-IPC机制"><span class="nav-number"></span> <span class="nav-text">Android中 常见的 IPC机制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Binder-通信模型"><span class="nav-number"></span> <span class="nav-text">Binder 通信模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Binder-的定义"><span class="nav-number"></span> <span class="nav-text">Binder 的定义</span></a></div>
             
 
           </div>
