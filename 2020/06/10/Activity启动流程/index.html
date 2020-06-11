@@ -87,7 +87,7 @@
 <meta property="og:description" content="源码版本:android - 25 对应Android版本7.1 鸣谢: 《Android开发艺术探索》 startActivity启动过程分析 @ GitYuan  从Launcher中点击图标从View的Tag中获取Intent12345678910public void onClick(View v) &amp;#123;      Object tag &#x3D; v.getTag();      if">
 <meta property="og:image" content="http://yoursite.com/2020/06/10/Activity%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/IApplicationThread.png">
 <meta property="article:published_time" content="2020-06-10T03:12:03.000Z">
-<meta property="article:modified_time" content="2020-06-11T04:06:33.649Z">
+<meta property="article:modified_time" content="2020-06-11T04:58:35.925Z">
 <meta property="article:author" content="DingoDemon">
 <meta property="article:tag" content="Android Source Analyze">
 <meta property="article:tag" content="Android">
@@ -309,6 +309,8 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line"> public void startActivity(Intent intent, Bundle options) &#123;</span><br><span class="line">     warnIfCallingFromSystemProcess();</span><br><span class="line">      &#x2F;&#x2F;略...</span><br><span class="line">     mMainThread.getInstrumentation().execStartActivity(</span><br><span class="line">             getOuterContext(), mMainThread.getApplicationThread(), null,</span><br><span class="line">             (Activity) null, intent, -1, options);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
 
 <p>通过ActivityThread 中的 Instrumentation 对象执行execStartActivity 方法。</p>
+<a id="more"></a>
+
 <h2 id="Instrumentation-execStartActivity"><a href="#Instrumentation-execStartActivity" class="headerlink" title="Instrumentation # execStartActivity"></a>Instrumentation # execStartActivity</h2><blockquote>
 <p>Instrumentation这个类很重要，重要体现在对Activity生命周期的调用根本离不开它。每个Activity都持有Instrumentation对象的一个引用，但是整个进程只会存在一个Instrumentation对象。</p>
 </blockquote>
