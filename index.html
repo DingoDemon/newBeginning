@@ -263,6 +263,16 @@
 
           
             
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="2222/02/08/newBegin/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="2222/02/08/newBegin/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -292,6 +302,273 @@
             <p>原来的source不在了，看了下原来写的blog，浮夸中二粗糙。</p>
 <p>雄关漫道真如铁，而今迈步从头越。</p>
 <p>用简单的话，把学过的技术，扎扎实实地讲清楚。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com2020/06/14/RecyclerView(%E4%BA%8C)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DingoDemon">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/Avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DingoDemon">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="2020/06/14/RecyclerView(%E4%BA%8C)/" itemprop="url">RecyclerView(二) - 缓存</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-14T18:05:15+08:00">
+                2020-06-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="2020/06/14/RecyclerView(%E4%BA%8C)/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="2020/06/14/RecyclerView(%E4%BA%8C)/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>鸣谢:</p>
+<blockquote>
+<p><a href="https://juejin.im/post/5eae33a26fb9a043586c7f19" target="_blank" rel="noopener">深入理解 RecyclerView 的缓存机制</a></p>
+<p><a href="https://juejin.im/post/5b77f1d0e51d4538900586fb" target="_blank" rel="noopener">RecyclerView预加载机制源码分析</a></p>
+</blockquote>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>RecyclerView 在滑动中不能每次都将移除的View销毁，创建新的添加进来。也不能无限地添加不销毁。需要使用复用机制，将移去的View缓存下来。移入时添加进来。 甚至在多个RecyclerView之间，也可以使用缓存。RecylerView抽离Recycler来进行缓存。</p>
+<p>掌握Recycler缓存原理是进行RecyclerView性能优化的前提。</p>
+<h2 id="Recycler"><a href="#Recycler" class="headerlink" title="Recycler"></a>Recycler</h2><blockquote>
+<p>A Recycler is responsible for managing scrapped or detached item views for reuse.</p>
+<blockquote>
+<p>A “scrapped” view is a view that is still attached to its parent RecyclerView but that has been marked for removal or reuse</p>
+</blockquote>
+<p>Typical use of a Recycler by a LayoutManager will be to obtain views for an adapter’s data set representing the data at a given position or item ID.<br>If the view to be reused is considered “dirty” the adapter will be asked to rebind it.<br>If not, the view can be quickly reused by the LayoutManager with no further work.</p>
+</blockquote>
+<p>缓存有存和取两个流程组成。先看存的过程。</p>
+<h3 id="成员变量"><a href="#成员变量" class="headerlink" title="成员变量"></a>成员变量</h3><p>常量忽略</p>
+<h4 id="一级缓存"><a href="#一级缓存" class="headerlink" title="一级缓存"></a>一级缓存</h4><p><code>ArrayList&lt;ViewHolder&gt; mChangedScrap</code></p>
+<p><code>ArrayList&lt;ViewHolder&gt; mAttachedScrap</code></p>
+<p><code>ArrayList&lt;ViewHolder&gt; mCachedViews</code></p>
+<ul>
+<li><p>mChangedScrap用于动画时的内部缓存。</p>
+</li>
+<li><p>mAttachedScrap 用于数据刷新时(notify)，储存被detach的View。调用处为<strong>onLayoutChildren # detachAndScrapAttachedViews(recycler)</strong></p>
+</li>
+</ul>
+<blockquote>
+<p>mChangedScrap和mAttachedScrap只会存在于布局阶段。</p>
+</blockquote>
+<ul>
+<li>mCachedViews用于缓存屏幕滑入滑出时进行的缓存,默认最大缓存2个。</li>
+</ul>
+<h4 id="二级缓存"><a href="#二级缓存" class="headerlink" title="二级缓存"></a>二级缓存</h4><p><code>ViewCacheExtension mViewCacheExtension;</code></p>
+<p>用户自定义缓存，需实现</p>
+<p><code>View getViewForPositionAndType(@NonNull Recycler recycler, int position, int type)</code>方法。</p>
+<h4 id="三级缓存"><a href="#三级缓存" class="headerlink" title="三级缓存"></a>三级缓存</h4><p>多个RecyclerView之间共享缓存</p>
+<ul>
+<li>RecycledViewPool mRecyclerPool;</li>
+</ul>
+<blockquote>
+<p>RecycledViewPool lets you share Views between multiple RecyclerViews</p>
+</blockquote>
+<h2 id="布局时，尝试一-二-三级缓存-中-获取-ViewHolder"><a href="#布局时，尝试一-二-三级缓存-中-获取-ViewHolder" class="headerlink" title="布局时，尝试一/二/三级缓存 中 获取 ViewHolder"></a>布局时，尝试一/二/三级缓存 中 获取 ViewHolder</h2><blockquote>
+<p>即取的过程</p>
+</blockquote>
+<p>获取ViewHolder的流程为:</p>
+<ul>
+<li>一级缓存中没有，则去二级缓存中查找，二级中没有，去三级中查找。如果还是没有，则创建一个。</li>
+</ul>
+<p>这个过程，来自于测量流程里的 <strong><em>LayoutManager # fill # layoutChunk</em></strong>。这个方法会尝试铺满整个布局。这个时候就会执行获取ViewHolder的流程。即 <strong>RecyclerView # tryGetViewHolderForPositionByDeadline</strong></p>
+<h3 id="从一级缓存中获取"><a href="#从一级缓存中获取" class="headerlink" title="从一级缓存中获取"></a>从一级缓存中获取</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">   	ViewHolder holder = <span class="keyword">null</span>;</span><br><span class="line">mState.mInPreLayout = mState.mRunPredictiveAnimations;</span><br><span class="line">    <span class="keyword">if</span> (mState.isPreLayout()) &#123;</span><br><span class="line">        <span class="comment">//处于预布局阶段，从mChangedScrap中获取缓存(notifyDataSetChange)</span></span><br><span class="line">        <span class="comment">//如果Adapter.hasStableIds则通过Id从mChangedScrap中拿</span></span><br><span class="line">        holder = getChangedScrapViewForPosition(position);</span><br><span class="line">        fromScrapOrHiddenOrCache = holder != <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (holder == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">//从mAttachedScrap中获取缓存</span></span><br><span class="line">        <span class="comment">//没有的话从mCachedViews中获取</span></span><br><span class="line">        holder = getScrapOrHiddenOrCachedHolderForPosition(position, dryRun);</span><br><span class="line">        <span class="keyword">if</span> (holder != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">//校验ViewHolder是否可用</span></span><br><span class="line">            <span class="keyword">if</span> (!validateViewHolderForOffsetPosition(holder)) &#123;</span><br><span class="line">                <span class="comment">// recycle holder (and unscrap if relevant) since it can't be used</span></span><br><span class="line">                <span class="keyword">if</span> (!dryRun) &#123;</span><br><span class="line">                    holder.addFlags(ViewHolder.FLAG_INVALID);</span><br><span class="line">                    <span class="keyword">if</span> (holder.isScrap()) &#123;</span><br><span class="line">                        removeDetachedView(holder.itemView, <span class="keyword">false</span>);</span><br><span class="line">                        holder.unScrap();</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (holder.wasReturnedFromScrap()) &#123;</span><br><span class="line">                        holder.clearReturnedFromScrapFlag();</span><br><span class="line">                    &#125;</span><br><span class="line">                    recycleViewHolderInternal(holder);</span><br><span class="line">                &#125;</span><br><span class="line">                holder = <span class="keyword">null</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                fromScrapOrHiddenOrCache = <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>通过查阅资料，预布局的意思是。实现预测动画的一个步骤，先将原布局布局出来，然后通过Adapter的notify信息。知道哪些item变化了。所以可以加载另外的item。通过之间的变化执行动画,预布局是实现预测动画的一个步骤</p>
+<h4 id="CAC"><a href="#CAC" class="headerlink" title="CAC"></a>CAC</h4><p>如果处于预布局阶段，先从mChangedScrap中获取。</p>
+<p>然后尝试从mAttachedScrap中取。如果取到了的话,使之与RecyclerViewdetach后scrap(加入mAttachedScrap或mChangedScrap)。</p>
+<p>如果都没取到，则从mCachedViews中取。成功获取的话，校验其有效性</p>
+<p>若检验失败则将其回收到 RecyclerViewPool 中<br>检验成功可以直接使用</p>
+<h3 id="从二级缓存中取"><a href="#从二级缓存中取" class="headerlink" title="从二级缓存中取"></a>从二级缓存中取</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">if</span> (holder == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> offsetPosition = mAdapterHelper.findPositionOffset(position);</span><br><span class="line">    <span class="keyword">if</span> (offsetPosition &lt; <span class="number">0</span> || offsetPosition &gt;= mAdapter.getItemCount()) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IndexOutOfBoundsException(<span class="string">"Inconsistency detected. Invalid item "</span></span><br><span class="line">                + <span class="string">"position "</span> + position + <span class="string">"(offset:"</span> + offsetPosition + <span class="string">")."</span></span><br><span class="line">                + <span class="string">"state:"</span> + mState.getItemCount());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//从重写的getItemViewType中获取type</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> type = mAdapter.getItemViewType(offsetPosition);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mAdapter.hasStableIds()) &#123;</span><br><span class="line">    <span class="comment">//用id代替position进行查找</span></span><br><span class="line">        holder = getScrapOrCachedViewForId(mAdapter.getItemId(offsetPosition),</span><br><span class="line">                type, dryRun);</span><br><span class="line">        <span class="keyword">if</span> (holder != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// update position</span></span><br><span class="line">            holder.mPosition = offsetPosition;</span><br><span class="line">            fromScrapOrHiddenOrCache = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//从mViewCacheExtension中获取</span></span><br><span class="line">    <span class="keyword">if</span> (holder == <span class="keyword">null</span> &amp;&amp; mViewCacheExtension != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// We are NOT sending the offsetPosition because LayoutManager does not</span></span><br><span class="line">        <span class="comment">// know it.</span></span><br><span class="line">        <span class="keyword">final</span> View view = mViewCacheExtension</span><br><span class="line">                .getViewForPositionAndType(<span class="keyword">this</span>, position, type);</span><br><span class="line">        <span class="keyword">if</span> (view != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">//从后续得知，View需要被createViewHolder/bind过。</span></span><br><span class="line">            holder = getChildViewHolder(view);</span><br><span class="line">            <span class="keyword">if</span> (holder == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"getViewForPositionAndType returned"</span></span><br><span class="line">                        + <span class="string">" a view which does not have a ViewHolder"</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (holder.shouldIgnore()) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"getViewForPositionAndType returned"</span></span><br><span class="line">                        + <span class="string">" a view that is ignored. You must call stopIgnoring before"</span></span><br><span class="line">                        + <span class="string">" returning this view."</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h3 id="从三级缓存中取"><a href="#从三级缓存中取" class="headerlink" title="从三级缓存中取"></a>从三级缓存中取</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (holder == <span class="keyword">null</span>) &#123;</span><br><span class="line">    holder = getRecycledViewPool().getRecycledView(type);</span><br><span class="line">    <span class="keyword">if</span> (holder != <span class="keyword">null</span>) &#123;</span><br><span class="line">        holder.resetInternal();</span><br><span class="line">        <span class="keyword">if</span> (FORCE_INVALIDATE_DISPLAY_LIST) &#123;</span><br><span class="line">            invalidateDisplayListInt(holder);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Adapter-createViewHolder"><a href="#Adapter-createViewHolder" class="headerlink" title="Adapter # createViewHolder"></a>Adapter # createViewHolder</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (holder == <span class="keyword">null</span>) &#123;</span><br><span class="line">      holder = mAdapter.createViewHolder(RecyclerView.<span class="keyword">this</span>, type);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">final</span> ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();</span><br><span class="line">  <span class="keyword">final</span> LayoutParams rvLayoutParams;</span><br><span class="line">  <span class="keyword">if</span> (lp == <span class="keyword">null</span>) &#123;</span><br><span class="line">      rvLayoutParams = (LayoutParams) generateDefaultLayoutParams();</span><br><span class="line">      holder.itemView.setLayoutParams(rvLayoutParams);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!checkLayoutParams(lp)) &#123;</span><br><span class="line">      rvLayoutParams = (LayoutParams) generateLayoutParams(lp);</span><br><span class="line">      holder.itemView.setLayoutParams(rvLayoutParams);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      rvLayoutParams = (LayoutParams) lp;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//对应ViewCacheExtension中getChildViewHolder，不能随便返回一个VIew</span></span><br><span class="line">  rvLayoutParams.mViewHolder = holder;</span><br><span class="line">  rvLayoutParams.mPendingInvalidate = fromScrapOrHiddenOrCache &amp;&amp; bound;</span><br></pre></td></tr></table></figure>
+
+<h2 id="滑动过程中的复用"><a href="#滑动过程中的复用" class="headerlink" title="滑动过程中的复用"></a>滑动过程中的复用</h2><blockquote>
+<p>存的部分，之一</p>
+</blockquote>
+<p>RecyclerView的滑动过程可以分为2个阶段：手指在屏幕上移动，使RecyclerView滑动的过程，可以称为scroll；手指离开屏幕，RecyclerView继续滑动一段距离的过程，可以称为fling</p>
+<p>滑动:</p>
+<ul>
+<li>ACTION_MOVE</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (mScrollState == SCROLL_STATE_DRAGGING) &#123;</span><br><span class="line">             mLastTouchX = x - mScrollOffset[<span class="number">0</span>];</span><br><span class="line">             mLastTouchY = y - mScrollOffset[<span class="number">1</span>];</span><br><span class="line">             <span class="keyword">if</span> (scrollByInternal(</span><br><span class="line">                     canScrollHorizontally ? dx : <span class="number">0</span>,</span><br><span class="line">                     canScrollVertically ? dy : <span class="number">0</span>,</span><br><span class="line">                     vtev)) &#123;</span><br><span class="line">                 getParent().requestDisallowInterceptTouchEvent(<span class="keyword">true</span>);</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ACTION_UP</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mVelocityTracker.addMovement(vtev);</span><br><span class="line">               eventAddedToVelocityTracker = <span class="keyword">true</span>;</span><br><span class="line">               mVelocityTracker.computeCurrentVelocity(<span class="number">1000</span>, mMaxFlingVelocity);</span><br><span class="line">               <span class="keyword">final</span> <span class="keyword">float</span> xvel = canScrollHorizontally ?</span><br><span class="line">                       -VelocityTrackerCompat.getXVelocity(mVelocityTracker, mScrollPointerId) : <span class="number">0</span>;</span><br><span class="line">               <span class="keyword">final</span> <span class="keyword">float</span> yvel = canScrollVertically ?</span><br><span class="line">                       -VelocityTrackerCompat.getYVelocity(mVelocityTracker, mScrollPointerId) : <span class="number">0</span>;</span><br><span class="line">               <span class="keyword">if</span> (!((xvel != <span class="number">0</span> || yvel != <span class="number">0</span>) &amp;&amp; fling((<span class="keyword">int</span>) xvel, (<span class="keyword">int</span>) yvel))) &#123;</span><br><span class="line">                   setScrollState(SCROLL_STATE_IDLE);</span><br><span class="line">               &#125;</span><br><span class="line">               resetTouch();</span><br></pre></td></tr></table></figure>
+
+<h3 id="ACTION-MOVE"><a href="#ACTION-MOVE" class="headerlink" title="ACTION_MOVE"></a>ACTION_MOVE</h3><p>ACTION_MOVE 会把偏移量，Recycler，和 State 传递给LayoutManager进行处理。毕竟measure，layout都在LayoutManager中进行。还是以LinearLayoutManager来举例。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">scrollBy</span><span class="params">(<span class="keyword">int</span> dy, RecyclerView.Recycler recycler, RecyclerView.State state)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (getChildCount() == <span class="number">0</span> || dy == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> consumed = mLayoutState.mScrollingOffset</span><br><span class="line">                + fill(recycler, mLayoutState, state, <span class="keyword">false</span>);</span><br><span class="line">        <span class="keyword">if</span> (consumed &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> scrolled = absDy &gt; consumed ? layoutDirection * consumed : dy;</span><br><span class="line">        mOrientationHelper.offsetChildren(-scrolled);</span><br><span class="line"> </span><br><span class="line">        mLayoutState.mLastScrollDelta = scrolled;</span><br><span class="line">        <span class="keyword">return</span> scrolled;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>fill 方法<code>@return Number of pixels that it added. Useful for scroll functions.</code></p>
+<p>回到fill方法中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fill</span><span class="params">(RecyclerView.Recycler recycler, LayoutState layoutState,</span></span></span><br><span class="line"><span class="function"><span class="params">          RecyclerView.State state, <span class="keyword">boolean</span> stopOnFocusable)</span> </span>&#123;</span><br><span class="line">     recycleByLayoutState(recycler, layoutState);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">recycleByLayoutState</span><span class="params">(RecyclerView.Recycler recycler, LayoutState layoutState)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (layoutState.mLayoutDirection == LayoutState.LAYOUT_START) &#123;</span><br><span class="line">           recycleViewsFromEnd(recycler, layoutState.mScrollingOffset);</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           recycleViewsFromStart(recycler, layoutState.mScrollingOffset);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>不管是从头还是从尾开始，都会来到recycleChildren,并最后进入removeAndRecycleViewAt方法</p>
+<p>将即将划出屏幕的View进行回收</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">removeAndRecycleViewAt</span><span class="params">(<span class="keyword">int</span> index, @NonNull Recycler recycler)</span> </span>&#123;</span><br><span class="line">          <span class="keyword">final</span> View view = getChildAt(index);</span><br><span class="line">          removeViewAt(index);</span><br><span class="line">          recycler.recycleView(view);</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+
+<p>之后调用`recycleViewHolderInternal(holder)’</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">recycleViewHolderInternal</span><span class="params">(ViewHolder holder)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (forceRecycle || holder.isRecyclable()) &#123;</span><br><span class="line">           <span class="keyword">if</span> (mViewCacheMax &gt; <span class="number">0</span></span><br><span class="line">                   &amp;&amp; !holder.hasAnyOfTheFlags(ViewHolder.FLAG_INVALID</span><br><span class="line">                   | ViewHolder.FLAG_REMOVED</span><br><span class="line">                   | ViewHolder.FLAG_UPDATE</span><br><span class="line">                   | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN)) &#123;</span><br><span class="line">               <span class="keyword">int</span> cachedViewSize = mCachedViews.size();</span><br><span class="line">               <span class="keyword">if</span> (cachedViewSize &gt;= mViewCacheMax &amp;&amp; cachedViewSize &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                   recycleCachedViewAt(<span class="number">0</span>);</span><br><span class="line">                   cachedViewSize--;</span><br><span class="line">               &#125;</span><br><span class="line">               mCachedViews.add(targetCacheIndex, holder);</span><br><span class="line">               cached = <span class="keyword">true</span>;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">if</span> (!cached) &#123;</span><br><span class="line">               addViewHolderToRecycledViewPool(holder, <span class="keyword">true</span>);</span><br><span class="line">               recycled = <span class="keyword">true</span>;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>mCachedViews遵循先进先出的原则进行缓存。当超过缓存的时候，会向pool进行缓存,此时被移除到RecyclePool的ViewHolder的内容会被标记为无效，当其再次使用时需要再次通过Adapter.bindViewHolder来绑定内容。</p>
+<h3 id="预加载"><a href="#预加载" class="headerlink" title="预加载"></a>预加载</h3><p>还是从MOVE中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (mGapWorker != <span class="keyword">null</span> &amp;&amp; (dx != <span class="number">0</span> || dy != <span class="number">0</span>)) &#123; mGapWorker.postFromTraversal(<span class="keyword">this</span>, dx, dy); &#125;</span><br><span class="line">```        </span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line">        <span class="comment">// 后续的动作触发去更新最新的dx和dy，prefect会按照这个最新的dx和dy计算prefetch的item的position</span></span><br><span class="line">       recyclerView.mPrefetchRegistry.setPrefetchVector(prefetchDx, prefetchDy);</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">         <span class="keyword">try</span> &#123;</span><br><span class="line">             <span class="keyword">if</span> (mRecyclerViews.isEmpty()) &#123;</span><br><span class="line">                 <span class="keyword">return</span>;</span><br><span class="line">             &#125;</span><br><span class="line">             <span class="keyword">long</span> latestFrameVsyncMs = <span class="number">0</span>;</span><br><span class="line">             <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">                 RecyclerView view = mRecyclerViews.get(i);</span><br><span class="line">                 <span class="keyword">if</span> (view.getWindowVisibility() == View.VISIBLE) &#123;</span><br><span class="line">                     latestFrameVsyncMs = Math.max(view.getDrawingTime(), latestFrameVsyncMs);</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">             <span class="keyword">if</span> (latestFrameVsyncMs == <span class="number">0</span>) &#123;</span><br><span class="line">                 <span class="keyword">return</span>;</span><br><span class="line">             &#125;</span><br><span class="line">             <span class="comment">// 计算预加载的最后时间，如果能在截止时间之前完成预加载，那么就能成功完成ViewHolder的预加载，如果不能那么就预加载失败</span></span><br><span class="line">             <span class="keyword">long</span> nextFrameNs = TimeUnit.MILLISECONDS.toNanos(latestFrameVsyncMs) + mFrameIntervalNs;</span><br><span class="line">             prefetch(nextFrameNs);</span><br><span class="line">         &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">             mPostTimeNs = <span class="number">0</span>;</span><br><span class="line">             TraceCompat.endSection();</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">prefetch</span><span class="params">(<span class="keyword">long</span> deadlineNs)</span> </span>&#123;</span><br><span class="line">       <span class="comment">// 计算任务列表</span></span><br><span class="line">       buildTaskList();</span><br><span class="line">       <span class="comment">// 开始预加载</span></span><br><span class="line">       flushTasksWithDeadline(deadlineNs);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>篇幅所限，预加载详情略。待拜读 <strong>寻找极限的猫</strong>blog后再看</p>
+<h2 id="notifyDataSetChange时的缓存处理"><a href="#notifyDataSetChange时的缓存处理" class="headerlink" title="notifyDataSetChange时的缓存处理"></a>notifyDataSetChange时的缓存处理</h2><p>notifyDataSetChange的时候，RecyclerView不知道哪些View变了，那些View没变。会调用ViewGroup的requestLayout整体重新布局。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onLayoutChildren</span><span class="params">(RecyclerView.Recycler recycler, RecyclerView.State state)</span></span>&#123;</span><br><span class="line">       <span class="comment">//略。。</span></span><br><span class="line">       detachAndScrapAttachedViews(recycler);</span><br><span class="line">       <span class="comment">//略。。</span></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">detachAndScrapAttachedViews</span><span class="params">(@NonNull Recycler recycler)</span> </span>&#123;</span><br><span class="line">           <span class="keyword">final</span> <span class="keyword">int</span> childCount = getChildCount();</span><br><span class="line">           <span class="keyword">for</span> (<span class="keyword">int</span> i = childCount - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">               <span class="keyword">final</span> View v = getChildAt(i);</span><br><span class="line">               scrapOrRecycleView(recycler, i, v);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (viewHolder.isInvalid() &amp;&amp; !viewHolder.isRemoved()</span><br><span class="line">                    &amp;&amp; !mRecyclerView.mAdapter.hasStableIds()) &#123;</span><br><span class="line">                removeViewAt(index);</span><br><span class="line">                recycler.recycleViewHolderInternal(viewHolder);</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">recycleViewHolderInternal</span><span class="params">(ViewHolder holder)</span> </span>&#123;</span><br><span class="line"> <span class="keyword">if</span> (!cached) &#123;</span><br><span class="line">                   addViewHolderToRecycledViewPool(holder, <span class="keyword">true</span>);</span><br><span class="line">                   recycled = <span class="keyword">true</span>;</span><br><span class="line">               &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">addViewHolderToRecycledViewPool</span><span class="params">(@NonNull ViewHolder holder, <span class="keyword">boolean</span> dispatchRecycled)</span> </span>&#123;</span><br><span class="line">            clearNestedRecyclerViewIfNotNested(holder);</span><br><span class="line">            <span class="keyword">if</span> (dispatchRecycled) &#123;</span><br><span class="line">                dispatchViewRecycled(holder);</span><br><span class="line">            &#125;</span><br><span class="line">            holder.mOwnerRecyclerView = <span class="keyword">null</span>;</span><br><span class="line">            getRecycledViewPool().putRecycledView(holder);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">putRecycledView</span><span class="params">(ViewHolder scrap)</span> </span>&#123;</span><br><span class="line">         <span class="keyword">final</span> <span class="keyword">int</span> viewType = scrap.getItemViewType();</span><br><span class="line">         <span class="keyword">final</span> ArrayList&lt;ViewHolder&gt; scrapHeap = getScrapDataForType(viewType).mScrapHeap;</span><br><span class="line">         <span class="keyword">if</span> (mScrap.get(viewType).mMaxScrap &lt;= scrapHeap.size()) &#123;</span><br><span class="line">             <span class="keyword">return</span>;</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">if</span> (DEBUG &amp;&amp; scrapHeap.contains(scrap)) &#123;</span><br><span class="line">             <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"this scrap item already exists"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">         scrap.resetInternal();</span><br><span class="line">         scrapHeap.add(scrap);</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到所有View都与RecyclerView相剥。最后缓存进RecyclerPool中的mScrap内。</p>
+<p>并在之后fill的时候从缓存中获取</p>
+<pre><code class="java">
+<span class="function"><span class="keyword">public</span> ViewHolder <span class="title">getRecycledView</span><span class="params">(<span class="keyword">int</span> viewType)</span> </span>{
+          <span class="keyword">final</span> ScrapData scrapData = mScrap.get(viewType);
+          <span class="keyword">if</span> (scrapData != <span class="keyword">null</span> &amp;&amp; !scrapData.mScrapHeap.isEmpty()) {
+              <span class="keyword">final</span> ArrayList&lt;ViewHolder&gt; scrapHeap = scrapData.mScrapHeap;
+              <span class="keyword">return</span> scrapHeap.remove(scrapHeap.size() - <span class="number">1</span>);
+          }
+          <span class="keyword">return</span> <span class="keyword">null</span>;
+      }</code></pre>
+<blockquote>
+<p>魔鬼藏在细节中，阅读源码真是一场酣畅淋漓的烧脑之旅</p>
+</blockquote>
 
           
         
@@ -385,6 +662,16 @@
 
           
             
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="2020/06/12/RecyclerView(%E4%B8%80)/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="2020/06/12/RecyclerView(%E4%B8%80)/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -412,6 +699,7 @@
         
           <blockquote>
 <p>源码版本25.3.1 ，摘取源码因为篇幅原因有所删减</p>
+<p>暂时忽略预加载，缓存</p>
 <p>鸣谢:</p>
 <p><a href="https://www.jianshu.com/p/61fe3f3bb7ec" target="_blank" rel="noopener">RecyclerView 源码分析(一) - RecyclerView的三大流程</a></p>
 </blockquote>
@@ -517,6 +805,16 @@
           
 
           
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="2020/06/10/Activity%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="2020/06/10/Activity%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" itemprop="commentCount"></span>
+                </a>
+              </span>
             
           
 
@@ -658,6 +956,16 @@
 
           
             
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="2020/06/09/Biner(%E4%BA%8C)/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="2020/06/09/Biner(%E4%BA%8C)/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -785,6 +1093,16 @@
           
 
           
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="2020/06/07/Binder(%E4%B8%80)/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="2020/06/07/Binder(%E4%B8%80)/" itemprop="commentCount"></span>
+                </a>
+              </span>
             
           
 
@@ -924,6 +1242,16 @@
 
           
             
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="2020/06/01/%E8%AE%B0%E5%88%86%E6%9E%90%E4%B8%80%E6%AC%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -1052,6 +1380,16 @@
           
 
           
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="2020/05/30/%E5%85%AB%E5%A4%A7%E6%8E%92%E5%BA%8F/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="2020/05/30/%E5%85%AB%E5%A4%A7%E6%8E%92%E5%BA%8F/" itemprop="commentCount"></span>
+                </a>
+              </span>
             
           
 
@@ -1274,6 +1612,16 @@
 
           
             
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="2020/05/28/View%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="2020/05/28/View%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -1431,6 +1779,16 @@
 
           
             
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="2020/05/27/thread-pool/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="2020/05/27/thread-pool/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -1555,7 +1913,7 @@
               
                 <a href="archives">
               
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1794,6 +2152,28 @@
 
 
 
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'r43AXdYACvdhTYR8Toy6Q9fc-gzGzoHsz',
+        appKey: '0xriQo9vWWIjN3N4V2u1PqL6',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
 
 
 

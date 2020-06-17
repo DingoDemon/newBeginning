@@ -79,14 +79,14 @@
 
 
 
-<meta name="description" content="源码版本25.3.1 ，摘取源码因为篇幅原因有所删减 鸣谢: RecyclerView 源码分析(一) - RecyclerView的三大流程  整体简述RecyclerView继承自ViewGroup并非AdapterView。用于灵活地展示数据集。 1public class RecyclerView extends ViewGroup implements ScrollingView, N">
+<meta name="description" content="源码版本25.3.1 ，摘取源码因为篇幅原因有所删减 暂时忽略预加载，缓存 鸣谢: RecyclerView 源码分析(一) - RecyclerView的三大流程  整体简述RecyclerView继承自ViewGroup并非AdapterView。用于灵活地展示数据集。 1public class RecyclerView extends ViewGroup implements Scrol">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RecyclerView(一) - 测量流程">
 <meta property="og:url" content="http://yoursite.com/2020/06/12/RecyclerView(%E4%B8%80)/index.html">
 <meta property="og:site_name" content="DingoDemon">
-<meta property="og:description" content="源码版本25.3.1 ，摘取源码因为篇幅原因有所删减 鸣谢: RecyclerView 源码分析(一) - RecyclerView的三大流程  整体简述RecyclerView继承自ViewGroup并非AdapterView。用于灵活地展示数据集。 1public class RecyclerView extends ViewGroup implements ScrollingView, N">
+<meta property="og:description" content="源码版本25.3.1 ，摘取源码因为篇幅原因有所删减 暂时忽略预加载，缓存 鸣谢: RecyclerView 源码分析(一) - RecyclerView的三大流程  整体简述RecyclerView继承自ViewGroup并非AdapterView。用于灵活地展示数据集。 1public class RecyclerView extends ViewGroup implements Scrol">
 <meta property="article:published_time" content="2020-06-12T06:18:24.000Z">
-<meta property="article:modified_time" content="2020-06-14T10:01:13.140Z">
+<meta property="article:modified_time" content="2020-06-16T05:38:14.030Z">
 <meta property="article:author" content="DingoDemon">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Android Source Analysis">
@@ -266,6 +266,16 @@
 
           
             
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -292,6 +302,7 @@
       
         <blockquote>
 <p>源码版本25.3.1 ，摘取源码因为篇幅原因有所删减</p>
+<p>暂时忽略预加载，缓存</p>
 <p>鸣谢:</p>
 <p><a href="https://www.jianshu.com/p/61fe3f3bb7ec" target="_blank" rel="noopener">RecyclerView 源码分析(一) - RecyclerView的三大流程</a></p>
 </blockquote>
@@ -516,8 +527,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="../../../../2222/02/08/newBegin/" rel="prev" title="序">
-                序 <i class="fa fa-chevron-right"></i>
+              <a href="../../14/RecyclerView(%E4%BA%8C)/" rel="prev" title="RecyclerView(二) - 缓存">
+                RecyclerView(二) - 缓存 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -547,6 +558,9 @@
 
           
 
+  
+    <div class="comments" id="comments">
+    </div>
   
 
 
@@ -599,7 +613,7 @@
               
                 <a href="../../../../archives">
               
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -858,6 +872,28 @@
 
 
 
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'r43AXdYACvdhTYR8Toy6Q9fc-gzGzoHsz',
+        appKey: '0xriQo9vWWIjN3N4V2u1PqL6',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
 
 
 
