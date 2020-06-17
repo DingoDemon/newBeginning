@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="DingoDemon">
 <meta property="og:description" content="鸣谢:  深入理解 RecyclerView 的缓存机制 RecyclerView预加载机制源码分析  概述RecyclerView 在滑动中不能每次都将移除的View销毁，创建新的添加进来。也不能无限地添加不销毁。RecyclerView内部实现了三级缓存，使之能够:  上下滚动时利用复用机制，往下滑动时将移去的View缓存下来。往回滑动时如果可复用，移入时从缓存里添加回来。  在向一个方向滑动">
 <meta property="article:published_time" content="2020-06-14T10:05:15.000Z">
-<meta property="article:modified_time" content="2020-06-17T17:22:15.393Z">
+<meta property="article:modified_time" content="2020-06-17T17:25:19.047Z">
 <meta property="article:author" content="DingoDemon">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Android Source Analysis">
@@ -326,7 +326,7 @@
 </blockquote>
 <p>Typical use of a Recycler by a LayoutManager will be to obtain views for an adapter’s data set representing the data at a given position or item ID.<br>If the view to be reused is considered “dirty” the adapter will be asked to rebind it.<br>If not, the view can be quickly reused by the LayoutManager with no further work.</p>
 </blockquote>
-<p>缓存有存和取两个流程组成。先看存的过程。</p>
+<p>缓存有存和取两个流程组成。先看取的过程，再看存的过程。</p>
 <!--more-->
 
 <h3 id="成员变量"><a href="#成员变量" class="headerlink" title="成员变量"></a>成员变量</h3><p>常量忽略</p>
@@ -340,7 +340,7 @@
 </li>
 </ul>
 <blockquote>
-<p>mChangedScrap和mAttachedScrap只会存在于布局阶段。</p>
+<p>mChangedScrap和mAttachedScrap 只会在布局阶段不为空。</p>
 </blockquote>
 <ul>
 <li>mCachedViews用于缓存屏幕滑入滑出时进行的缓存,默认最大缓存2个。</li>
@@ -348,7 +348,7 @@
 <h4 id="二级缓存"><a href="#二级缓存" class="headerlink" title="二级缓存"></a>二级缓存</h4><p><code>ViewCacheExtension mViewCacheExtension;</code></p>
 <p>用户自定义缓存，需实现</p>
 <p><code>View getViewForPositionAndType(@NonNull Recycler recycler, int position, int type)</code>方法。</p>
-<h4 id="三级缓存"><a href="#三级缓存" class="headerlink" title="三级缓存"></a>三级缓存</h4><p>多个RecyclerView之间共享缓存</p>
+<h4 id="三级缓存"><a href="#三级缓存" class="headerlink" title="三级缓存"></a>三级缓存</h4><p>缓存量更大的缓存，实现一二级缓存缓存不下的缓存，和多个RecyclerView之间共享缓存</p>
 <ul>
 <li>RecycledViewPool mRecyclerPool;</li>
 </ul>
