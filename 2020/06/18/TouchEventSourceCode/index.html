@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="DingoDemon">
 <meta property="og:description" content="Android知识笔记：记录 2 个 “容易误解” 的Android 知识点 源码版本 android - 25  Touch事件从触摸到Activity  当屏幕被触摸，Linux内核会将硬件产生的触摸事件包装为Event存到&#x2F;dev&#x2F;input&#x2F;event[x]目录下。  Input系统—InputReader线程：loop起来让EventHub调用getEvent()不断的从&#x2F;dev&#x2F;in">
 <meta property="article:published_time" content="2020-06-18T08:40:21.000Z">
-<meta property="article:modified_time" content="2020-06-21T15:40:54.418Z">
+<meta property="article:modified_time" content="2020-07-02T16:12:26.826Z">
 <meta property="article:author" content="DingoDemon">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Android Source Analysis">
@@ -342,9 +342,13 @@
 <p>processPointerEvent</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">processPointerEvent</span><span class="params">(QueuedInputEvent q)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> MotionEvent event = (MotionEvent) q.mEvent;</span><br><span class="line">        <span class="keyword">boolean</span> handled = mView.dispatchPointerEvent(event);</span><br><span class="line">        <span class="keyword">return</span> handled ? FINISH_HANDLED : FORWARD;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-
-
-<p>可以看到事件分发到了mView的dispatchPointerEvent<br>而mView在AT的handleResumeActivity中，有注释</p>
+<blockquote>
+<blockquote>
+<p>这里会借助Choreographer分发批量事件，但不再本章讨论范围内。因此忽略</p>
+</blockquote>
+</blockquote>
+<p>可以看到事件分发进入了熟悉的mView的dispatchPointerEvent<br>而mView在AT的handleResumeActivity中，有注释</p>
+<p>即DecorView</p>
 <blockquote>
 <pre><code>// Normally the ViewRoot sets up callbacks with the Activity
       // in addView-&gt;ViewRootImpl#setView. If we are instead reusing
@@ -534,7 +538,7 @@
               
                 <a href="../../../../archives">
               
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
