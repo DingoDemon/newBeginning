@@ -87,7 +87,7 @@
 <meta property="og:description" content="源码版本 android-29  鸣谢 :  Android 基于 Choreographer 的渲染机制详解 Android 怎么就不卡了呢之Choreographer  60帧的由来和垂直同步60hz和60帧的区别 帧数是指运行时每秒所运行的帧数(简称FPS,Frames Per Second),帧数越大,画面越流畅,但是对资源消耗也就越大 hz指的是屏幕刷新的频率,比如屏幕刷新率是 75">
 <meta property="og:image" content="http://yoursite.com/2020/07/02/Choreographer/triple_buffer.png">
 <meta property="article:published_time" content="2020-07-02T05:58:38.000Z">
-<meta property="article:modified_time" content="2020-07-03T06:15:38.076Z">
+<meta property="article:modified_time" content="2020-07-03T06:27:28.703Z">
 <meta property="article:author" content="DingoDemon">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Android Source Analysis">
@@ -334,7 +334,7 @@
 <a id="more"></a>
 
 <h2 id="Choreographer如何让帧数尽可能稳定在60帧"><a href="#Choreographer如何让帧数尽可能稳定在60帧" class="headerlink" title="Choreographer如何让帧数尽可能稳定在60帧"></a>Choreographer如何让帧数尽可能稳定在60帧</h2><p>在使用垂直同步的情况下,无论多快的变化UI,刷新频率也不会小于16ms,用View重绘来举例说明</p>
-<h3 id="重绘请求的提交"><a href="#重绘请求的提交" class="headerlink" title="重绘请求的提交"></a>重绘请求的提交</h3><p>当UI需要展示新内容的时候,通过invalidate(重绘自身)和requestLayout(重新布局)来进行重绘。 这两者的过程都是打标记自己脏了,告诉父布局需要重绘和重新layout</p>
+<h3 id="重绘请求的提交"><a href="#重绘请求的提交" class="headerlink" title="重绘请求的提交"></a>重绘请求的提交</h3><p>当UI需要展示新内容的时候,通过invalidate(重绘自身)和requestLayout(重新布局)来进行重绘。 这两种行为，都是递归向上告诉父布局需要重绘和重新layout</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> ViewParent p = mParent;</span><br><span class="line">          <span class="keyword">if</span> (p != <span class="keyword">null</span> &amp;&amp; ai != <span class="keyword">null</span> &amp;&amp; l &lt; r &amp;&amp; t &lt; b) &#123;</span><br><span class="line">              <span class="keyword">final</span> Rect damage = ai.mTmpInvalRect;</span><br><span class="line">              damage.set(l, t, r, b);</span><br><span class="line">              p.invalidateChild(<span class="keyword">this</span>, damage);</span><br><span class="line">          &#125;</span><br></pre></td></tr></table></figure>
 
 
