@@ -79,14 +79,14 @@
 
 
 
-<meta name="description" content="开篇问题:  RxJava的简单操作符如何实现的  RxJava如何完成线程切换的。多次调用subscribeOn的结果是什么，为什么 Schedulers是如何实现和管理线程的    使用Single作为表述对象  为了简述，约定俗称:  Single -&gt; 上游 SingleObserver -&gt; 下游 disposed -&gt; 丢弃 subscribe -&gt; 订阅 Di">
+<meta name="description" content="开篇问题:  RxJava的简单操作符如何实现的  RxJava如何完成线程切换的。多次调用subscribeOn的结果是什么，为什么 Schedulers是如何实现和管理线程的    使用Single代替Observable作为表述对象  为了简述，约定简称:  Single -&gt; 上游 SingleObserver -&gt; 下游 disposed -&gt; 丢弃 subscribe">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RxJava源码阅读 - 基础操作符和上游线程切换">
 <meta property="og:url" content="http://yoursite.com/2020/06/24/RxJavaSourceAnalyse/index.html">
 <meta property="og:site_name" content="DingoDemon">
-<meta property="og:description" content="开篇问题:  RxJava的简单操作符如何实现的  RxJava如何完成线程切换的。多次调用subscribeOn的结果是什么，为什么 Schedulers是如何实现和管理线程的    使用Single作为表述对象  为了简述，约定俗称:  Single -&gt; 上游 SingleObserver -&gt; 下游 disposed -&gt; 丢弃 subscribe -&gt; 订阅 Di">
+<meta property="og:description" content="开篇问题:  RxJava的简单操作符如何实现的  RxJava如何完成线程切换的。多次调用subscribeOn的结果是什么，为什么 Schedulers是如何实现和管理线程的    使用Single代替Observable作为表述对象  为了简述，约定简称:  Single -&gt; 上游 SingleObserver -&gt; 下游 disposed -&gt; 丢弃 subscribe">
 <meta property="article:published_time" content="2020-06-24T14:52:28.000Z">
-<meta property="article:modified_time" content="2020-06-28T09:38:11.130Z">
+<meta property="article:modified_time" content="2020-07-03T06:31:56.228Z">
 <meta property="article:author" content="DingoDemon">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Android Source Analysis">
@@ -307,8 +307,8 @@
 <li>Schedulers是如何实现和管理线程的</li>
 </ol>
 <blockquote>
-<p> 使用Single作为表述对象</p>
-<p> 为了简述，约定俗称:</p>
+<p> 使用Single代替Observable作为表述对象</p>
+<p> 为了简述，约定简称:</p>
 <blockquote>
 <p>Single -&gt; 上游</p>
 <p>SingleObserver -&gt; 下游</p>
@@ -316,7 +316,7 @@
 <p>subscribe -&gt; 订阅</p>
 <p>Disposable -&gt; 订阅事件</p>
 </blockquote>
-<p>俗称原文会在语境中互相转换</p>
+<p>简称原文会有时在阐述中互相转换</p>
 </blockquote>
 <a id="more"></a>
 
