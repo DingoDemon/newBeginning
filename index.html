@@ -434,31 +434,34 @@
       
         
           <blockquote>
-<p>源码版本 android 29 </p>
+<p>源码版本 android-29 </p>
 <p>鸣谢 : </p>
 <p><a href="https://androidperformance.com/2019/10/22/Android-Choreographer/" target="_blank" rel="noopener">Android 基于 Choreographer 的渲染机制详解</a></p>
 <p><a href="https://juejin.im/post/5cb1bafe6fb9a068a84fda40#heading-5" target="_blank" rel="noopener">Android 怎么就不卡了呢之Choreographer</a></p>
 </blockquote>
-<h2 id="60帧的由来和垂直同步"><a href="#60帧的由来和垂直同步" class="headerlink" title="60帧的由来和垂直同步"></a>60帧的由来和垂直同步</h2><h3 id="60hz和60帧的区别"><a href="#60hz和60帧的区别" class="headerlink" title="60hz和60帧的区别"></a>60hz和60帧的区别</h3><p>hz指的是屏幕刷新的频率，比如你屏幕刷新率是 75 hz，软件是 60 fps，每秒软件渲染60次，你刷新 75 次，是没有啥效果的，除了重复帧率费电。</p>
-<p>帧数是指运行时每秒所运行的帧数(简称FPS,Frames Per Second)，帧数越大，画面越流畅，但是对资源消耗也就越大</p>
-<p>引入 Vsync 之前的 Android 版本，渲染一帧相关的 Message ，中间是没有间隔的，上一帧绘制完，下一帧的 Message 紧接着就开始被处理。这样的问题就是，帧率不稳定，可能高也可能低</p>
-<p>维持帧数围绕三部分展开，VSYNC，Triple Buffer，Choreographer</p>
-<h3 id="VSYNC，Triple-Buffer"><a href="#VSYNC，Triple-Buffer" class="headerlink" title="VSYNC，Triple Buffer"></a>VSYNC，Triple Buffer</h3><p>界面的显示大体会经过CPU的计算-&gt; GPU合成栅格化-&gt;显示设备显示三个流程</p>
+<h2 id="60帧的由来和垂直同步"><a href="#60帧的由来和垂直同步" class="headerlink" title="60帧的由来和垂直同步"></a>60帧的由来和垂直同步</h2><h3 id="60hz和60帧的区别"><a href="#60hz和60帧的区别" class="headerlink" title="60hz和60帧的区别"></a>60hz和60帧的区别</h3><blockquote>
+<p>帧数是指运行时每秒所运行的帧数(简称FPS,Frames Per Second),帧数越大,画面越流畅,但是对资源消耗也就越大</p>
+<p>hz指的是屏幕刷新的频率,比如屏幕刷新率是 75 hz,软件是 60 fps。每秒软件渲染60次,屏幕刷新 75 次,是没有啥效果的。除了重复帧率费电。</p>
+<p>引入 Vsync 之前的 Android 版本,渲染一帧相关的Message,中间是没有间隔的,上一帧绘制完,下一帧的 Message 紧接着就开始被处理。这样的问题就是,帧率不稳定,可能高也可能低</p>
+</blockquote>
+<p>因为人眼与大脑之间的协作无法感知超过60fps的画面更新,此时就需要用到稳定的60fps来达到想要的效果。</p>
+<p>维持帧数围绕三部分展开,VSYNC,Triple Buffer,Choreographer</p>
+<h3 id="VSYNC-amp-amp-Triple-Buffer"><a href="#VSYNC-amp-amp-Triple-Buffer" class="headerlink" title="VSYNC &amp;&amp; Triple Buffer"></a>VSYNC &amp;&amp; Triple Buffer</h3><p>界面的显示大体会经过CPU的计算-&gt; GPU合成栅格化-&gt;显示设备显示三个流程</p>
 <p>VSYNC 每16.67ms发送一次,轮番展示画面ABC </p>
-<p>之所以使用三级缓存的原因为最大化利用CPU，GPU。</p>
+<p>之所以使用三级缓存的原因为最大化利用CPU,GPU。</p>
 <p>例如:</p>
 <p><img src="/2020/07/02/Choreographer/triple_buffer.png" alt="triple_buffer"></p>
 <ul>
-<li><p>第一次VSYNC，屏幕展示画面A，CPU处理画面B，GPU等待CPU处理完毕</p>
+<li><p>第一次VSYNC,屏幕展示画面A,CPU处理画面B,GPU等待CPU处理完毕</p>
 </li>
-<li><p>第二次VSYNC，由于GPU在在处理画面B，所以画面停留在画面A，产生丢帧。但这时，CPU已经开始处理画面C了</p>
+<li><p>第二次VSYNC,由于GPU在在处理画面B,所以画面停留在画面A,产生丢帧。但这时,CPU已经开始处理画面C了</p>
 </li>
-<li><p>第三次VSYNC，GPU处理完了画面B，显示画面B，CPU处理画面A，GPU处理刚才第二次VSYNC中CPU处理的画面C。甚至在之后还能完成画面C继续处理画面A。</p>
+<li><p>第三次VSYNC,GPU处理完了画面B,显示画面B,CPU处理画面A,GPU处理刚才第二次VSYNC中CPU处理的画面C。甚至在之后还能完成画面C继续处理画面A</p>
 </li>
-<li><p>第四次VSYNC，展示画面C。CPU/GPU处理画面B，画面A已经早早准备好了，等待下次信号</p>
+<li><p>第四次VSYNC,展示画面C。CPU/GPU处理画面B,画面A已经早早准备好了,等待下次信号</p>
 </li>
 </ul>
-<p>而使用两级缓存，显示器不停替换画面1和画面2的话。如果CPU或GPU之一处理超时。势必造成另一方的空闲等待。</p>
+<p>假如使用两级缓存,显示器不停替换画面1和画面2的话。如果CPU或GPU之一处理超时。势必造成另一方的空闲等待。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="2020/07/02/Choreographer/#more" rel="contents">
