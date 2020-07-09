@@ -82,11 +82,11 @@
 <meta name="description" content="Glide 版本 4.11 本文梳理最基本的从网络加载一张图片到ImageView的整个流程 因篇幅原因，删略部分log代码 测试代码为Glide.with(MainActivity.this).load(&quot;http:&#x2F;&#x2F;goo.gl&#x2F;gEgYUd&quot;).into(imageView);  从最开始的with开始找线头Glide 重载了数个with方法，从中来看Glide 的创">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Glide源码阅读笔记(一) - url加载到ImageView全流程">
-<meta property="og:url" content="http://yoursite.com/2020/07/07/Glide/index.html">
+<meta property="og:url" content="http://yoursite.com/2020/07/07/Glide(1)/index.html">
 <meta property="og:site_name" content="DingoDemon">
 <meta property="og:description" content="Glide 版本 4.11 本文梳理最基本的从网络加载一张图片到ImageView的整个流程 因篇幅原因，删略部分log代码 测试代码为Glide.with(MainActivity.this).load(&quot;http:&#x2F;&#x2F;goo.gl&#x2F;gEgYUd&quot;).into(imageView);  从最开始的with开始找线头Glide 重载了数个with方法，从中来看Glide 的创">
 <meta property="article:published_time" content="2020-07-07T08:51:59.000Z">
-<meta property="article:modified_time" content="2020-07-08T08:50:43.792Z">
+<meta property="article:modified_time" content="2020-07-09T16:07:18.269Z">
 <meta property="article:author" content="DingoDemon">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Android Source Analysis">
@@ -120,7 +120,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2020/07/07/Glide/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/07/07/Glide(1)/"/>
 
 
 
@@ -518,25 +518,21 @@
 <p>最终，调用ImageView的setImageBitmap方法展示图片</p>
 <h2 id="全文流程总结"><a href="#全文流程总结" class="headerlink" title="全文流程总结"></a>全文流程总结</h2><ol>
 <li>Glide先调用With方法，返回一个RequestManager。这个RequestManager通过在Activity上增加Fragment的方式，感知Activity的生命周期</li>
-<li>load将model和RequestManager组装成为RequestBuilder</li>
-<li>into方法中，先组装一个Request，然后让RequestManager运行request，request begin</li>
+<li>load方法将RequestManager和model组装成为RequestBuilder</li>
+<li>into方法中，先组装一个Request，然后让RequestManager运行request，request # begin</li>
 <li>在begin中，获取View的尺寸，如果View还未测量，则等待onPreDraw回调</li>
-<li>在size准备好之后，使用engine加载</li>
-<li>engine会先从内存中查找，如果没找到的话。使用EngineJob来加载，如果已经有相同的EngineJob则复用。否则创建一个</li>
-<li>EngineJob使用线程池，在线程中让DecodeJob来真正执行资源获取</li>
+<li>在size准备好之后，使用engine # load加载</li>
+<li>engine会先从内存中查找，如果没找到的话。使用EngineJob来加载，如果已经有相同的EngineJob则按照规则复用。否则创建一个</li>
+<li>EngineJob使用线程池，在子线程中让DecodeJob来真正执行资源获取</li>
 <li>DecodeJob的run方法根据Status按照ResourceCacheGenerator，DataCacheGenerator,SourceGenerator的顺序，尝试加载model</li>
 <li>遍历DataFetcherGenerator的modelLoaders。寻找到可以加载model的ModelLoader</li>
 <li>可以加载model的ModelLoader有可能有数个，找到其中合法的,组装成LoadData</li>
 <li>使用LoadData中的DataFetcher,返回数据onDataReady或者onLoadFailed</li>
 <li>onDataReady或者onLoadFailed回调到DataFetcherGenerator,最终回调到DecodeJob中的onDataFetcherReady告诉外部界面已经准备OK</li>
-<li>DecodeJob将原数据转码成需要的数据后回调DecodeJob</li>
+<li>DecodeJob将原数据转码成需要的数据后回调EngineJob</li>
 <li>EngineJob收到回调，最终回调到Request中</li>
 <li>Request中如果有listener的话交与其处理，否则回调ViewTarget</li>
 <li>ViewTarget展示View</li>
-</ol>
-<h2 id="仍需阅读解决的问题"><a href="#仍需阅读解决的问题" class="headerlink" title="仍需阅读解决的问题"></a>仍需阅读解决的问题</h2><ol>
-<li>Glide策略，包括自定义缓存和下载框架</li>
-<li>缓存命中</li>
 </ol>
 
       
@@ -580,8 +576,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="../../../../2222/02/08/newBegin/" rel="prev" title="序">
-                序 <i class="fa fa-chevron-right"></i>
+              <a href="../../08/Glide(2)/" rel="prev" title="Glide源码阅读笔记(二) - 缓存机制">
+                Glide源码阅读笔记(二) - 缓存机制 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -666,7 +662,7 @@
               
                 <a href="../../../../archives">
               
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -737,7 +733,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#从最开始的with开始找线头"><span class="nav-number">1.</span> <span class="nav-text">从最开始的with开始找线头</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Glide-initializeGlide"><span class="nav-number">2.</span> <span class="nav-text">Glide # initializeGlide</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Glide-with-gt-RequestManager"><span class="nav-number">3.</span> <span class="nav-text">Glide # with -&gt; RequestManager</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SupportRequestManagerFragment-生命周期回调"><span class="nav-number">3.1.</span> <span class="nav-text">SupportRequestManagerFragment 生命周期回调</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LifeCircle-生命周期回调"><span class="nav-number">3.2.</span> <span class="nav-text">LifeCircle 生命周期回调</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RequestManager初始化"><span class="nav-number">3.3.</span> <span class="nav-text">RequestManager初始化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RequestManager-load"><span class="nav-number">4.</span> <span class="nav-text">RequestManager # load</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RequestBuilder-into"><span class="nav-number">5.</span> <span class="nav-text">RequestBuilder # into</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RequestManager-track"><span class="nav-number">5.1.</span> <span class="nav-text">RequestManager # track</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SingleRequest-begin"><span class="nav-number">5.2.</span> <span class="nav-text">SingleRequest # begin</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Engine-load"><span class="nav-number">6.</span> <span class="nav-text">Engine # load</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#loadFromMemory"><span class="nav-number">6.1.</span> <span class="nav-text">loadFromMemory</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#loadFromActiveResources"><span class="nav-number">6.1.1.</span> <span class="nav-text">loadFromActiveResources</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#loadFromCache"><span class="nav-number">6.1.2.</span> <span class="nav-text">loadFromCache</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#waitForExistingOrStartNewJob"><span class="nav-number">6.2.</span> <span class="nav-text">waitForExistingOrStartNewJob</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#DecodeJob-run"><span class="nav-number">6.2.0.1.</span> <span class="nav-text">DecodeJob # run</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#根据状态需要合适的资源加载器"><span class="nav-number">6.2.0.2.</span> <span class="nav-text">根据状态需要合适的资源加载器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SourceGenerator-startNext"><span class="nav-number">6.2.0.3.</span> <span class="nav-text">SourceGenerator # startNext</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MultiModelLoader-loadData"><span class="nav-number">6.2.0.4.</span> <span class="nav-text">MultiModelLoader # loadData</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MultiModelLoader"><span class="nav-number">6.2.0.5.</span> <span class="nav-text">MultiModelLoader</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SourceGenerator-onDataReadyInternal"><span class="nav-number">6.2.0.6.</span> <span class="nav-text">SourceGenerator # onDataReadyInternal</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#如果启用缓存"><span class="nav-number">6.2.0.7.</span> <span class="nav-text">如果启用缓存</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DataCacheGenerator-startNext"><span class="nav-number">6.2.0.8.</span> <span class="nav-text">DataCacheGenerator # startNext</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DecodeJob-onDataFetcherReady"><span class="nav-number">6.2.0.9.</span> <span class="nav-text">DecodeJob # onDataFetcherReady</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DecodeJob-notifyEncodeAndRelease"><span class="nav-number">6.2.0.10.</span> <span class="nav-text">DecodeJob # notifyEncodeAndRelease</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#EngineJob-notifyCallbacksOfResult"><span class="nav-number">6.2.0.11.</span> <span class="nav-text">EngineJob # notifyCallbacksOfResult</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#CallResourceReady-run"><span class="nav-number">6.2.0.12.</span> <span class="nav-text">CallResourceReady # run</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SingleRequest-onResourceReady"><span class="nav-number">6.2.0.13.</span> <span class="nav-text">SingleRequest # onResourceReady</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ImageViewTarget-onResourceReady"><span class="nav-number">6.2.0.14.</span> <span class="nav-text">ImageViewTarget # onResourceReady</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ImageViewTarget-onResourceReady-1"><span class="nav-number">6.2.0.15.</span> <span class="nav-text">ImageViewTarget # onResourceReady</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全文流程总结"><span class="nav-number">7.</span> <span class="nav-text">全文流程总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#仍需阅读解决的问题"><span class="nav-number">8.</span> <span class="nav-text">仍需阅读解决的问题</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#从最开始的with开始找线头"><span class="nav-number">1.</span> <span class="nav-text">从最开始的with开始找线头</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Glide-initializeGlide"><span class="nav-number">2.</span> <span class="nav-text">Glide # initializeGlide</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Glide-with-gt-RequestManager"><span class="nav-number">3.</span> <span class="nav-text">Glide # with -&gt; RequestManager</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SupportRequestManagerFragment-生命周期回调"><span class="nav-number">3.1.</span> <span class="nav-text">SupportRequestManagerFragment 生命周期回调</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LifeCircle-生命周期回调"><span class="nav-number">3.2.</span> <span class="nav-text">LifeCircle 生命周期回调</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RequestManager初始化"><span class="nav-number">3.3.</span> <span class="nav-text">RequestManager初始化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RequestManager-load"><span class="nav-number">4.</span> <span class="nav-text">RequestManager # load</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RequestBuilder-into"><span class="nav-number">5.</span> <span class="nav-text">RequestBuilder # into</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RequestManager-track"><span class="nav-number">5.1.</span> <span class="nav-text">RequestManager # track</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SingleRequest-begin"><span class="nav-number">5.2.</span> <span class="nav-text">SingleRequest # begin</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Engine-load"><span class="nav-number">6.</span> <span class="nav-text">Engine # load</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#loadFromMemory"><span class="nav-number">6.1.</span> <span class="nav-text">loadFromMemory</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#loadFromActiveResources"><span class="nav-number">6.1.1.</span> <span class="nav-text">loadFromActiveResources</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#loadFromCache"><span class="nav-number">6.1.2.</span> <span class="nav-text">loadFromCache</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#waitForExistingOrStartNewJob"><span class="nav-number">6.2.</span> <span class="nav-text">waitForExistingOrStartNewJob</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#DecodeJob-run"><span class="nav-number">6.2.0.1.</span> <span class="nav-text">DecodeJob # run</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#根据状态需要合适的资源加载器"><span class="nav-number">6.2.0.2.</span> <span class="nav-text">根据状态需要合适的资源加载器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SourceGenerator-startNext"><span class="nav-number">6.2.0.3.</span> <span class="nav-text">SourceGenerator # startNext</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MultiModelLoader-loadData"><span class="nav-number">6.2.0.4.</span> <span class="nav-text">MultiModelLoader # loadData</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MultiModelLoader"><span class="nav-number">6.2.0.5.</span> <span class="nav-text">MultiModelLoader</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SourceGenerator-onDataReadyInternal"><span class="nav-number">6.2.0.6.</span> <span class="nav-text">SourceGenerator # onDataReadyInternal</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#如果启用缓存"><span class="nav-number">6.2.0.7.</span> <span class="nav-text">如果启用缓存</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DataCacheGenerator-startNext"><span class="nav-number">6.2.0.8.</span> <span class="nav-text">DataCacheGenerator # startNext</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DecodeJob-onDataFetcherReady"><span class="nav-number">6.2.0.9.</span> <span class="nav-text">DecodeJob # onDataFetcherReady</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DecodeJob-notifyEncodeAndRelease"><span class="nav-number">6.2.0.10.</span> <span class="nav-text">DecodeJob # notifyEncodeAndRelease</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#EngineJob-notifyCallbacksOfResult"><span class="nav-number">6.2.0.11.</span> <span class="nav-text">EngineJob # notifyCallbacksOfResult</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#CallResourceReady-run"><span class="nav-number">6.2.0.12.</span> <span class="nav-text">CallResourceReady # run</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SingleRequest-onResourceReady"><span class="nav-number">6.2.0.13.</span> <span class="nav-text">SingleRequest # onResourceReady</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ImageViewTarget-onResourceReady"><span class="nav-number">6.2.0.14.</span> <span class="nav-text">ImageViewTarget # onResourceReady</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ImageViewTarget-onResourceReady-1"><span class="nav-number">6.2.0.15.</span> <span class="nav-text">ImageViewTarget # onResourceReady</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全文流程总结"><span class="nav-number">7.</span> <span class="nav-text">全文流程总结</span></a></li></ol></div>
             
 
           </div>

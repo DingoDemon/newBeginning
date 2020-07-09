@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="../../../../lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="../../../../lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="../../../../css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="../../../../images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../../../../images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="../../../../images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,Android Source Analysis," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Glide 版本 4.11 以默认缓存策略追溯代码  简述 Active resources are those that have been provided to at least one request and have not yetbeen released. Once all consumers of a resource have released that resource, t">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Glide源码阅读笔记(二) - 缓存机制">
+<meta property="og:url" content="http://yoursite.com/2020/07/08/Glide(2)/index.html">
+<meta property="og:site_name" content="DingoDemon">
+<meta property="og:description" content="Glide 版本 4.11 以默认缓存策略追溯代码  简述 Active resources are those that have been provided to at least one request and have not yetbeen released. Once all consumers of a resource have released that resource, t">
+<meta property="article:published_time" content="2020-07-08T13:40:26.000Z">
+<meta property="article:modified_time" content="2020-07-09T16:11:38.998Z">
+<meta property="article:author" content="DingoDemon">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="Android Source Analysis">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/07/08/Glide(2)/"/>
+
+
+
+
+
+  <title>Glide源码阅读笔记(二) - 缓存机制 | DingoDemon</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DingoDemon</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">welcome to my zone</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DingoDemon">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="../../../../images/Avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DingoDemon">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Glide源码阅读笔记(二) - 缓存机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-07-08T21:40:26+08:00">
+                2020-07-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>Glide 版本 4.11</p>
+<p>以默认缓存策略追溯代码</p>
+</blockquote>
+<h2 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h2><blockquote>
+<p>Active resources are those that have been provided to at least one request and have not yet<br>been released. Once all consumers of a resource have released that resource, the resource then<br>goes to cache. If the resource is ever returned to a new consumer from cache, it is re-added to<br>the active resources. If the resource is evicted from the cache, its resources are recycled and<br>re-used if possible and the resource is discarded. There is no strict requirement that<br>consumers release their resources so active resources are held weakly.</p>
+</blockquote>
+<p>这是Engine里的一段注释,描述了ActiveResources的定义。我理解为仍在界面上已经被加载没有被回收的图片。</p>
+<ol>
+<li>ActiveResources</li>
+<li>MemoryCache</li>
+<li>DiskCache</li>
+</ol>
+<p>接下来逐一拆解Glide如何缓存加载图片</p>
+<h2 id="如果Target上已经有request的话-并且两者等价"><a href="#如果Target上已经有request的话-并且两者等价" class="headerlink" title="如果Target上已经有request的话,并且两者等价"></a>如果Target上已经有request的话,并且两者等价</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Y <span class="title">into</span><span class="params">(//参数略.....</span></span></span><br><span class="line"><span class="function"><span class="params">    )</span> </span>&#123;</span><br><span class="line">        Request request = buildRequest(target, targetListener, options, callbackExecutor);</span><br><span class="line">        Request previous = target.getRequest();</span><br><span class="line">        <span class="comment">//如果request 和 target上的完全等价</span></span><br><span class="line">        <span class="keyword">if</span> (request.isEquivalentTo(previous) &amp;&amp; !isSkipMemoryCacheWithCompletePreviousRequest(options, previous)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!Preconditions.checkNotNull(previous).isRunning()) &#123;</span><br><span class="line">                previous.begin();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> target;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//跳过内存缓存，并且之前已经请求完毕</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">isSkipMemoryCacheWithCompletePreviousRequest</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">            BaseRequestOptions&lt;?&gt; options, Request previous)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> !options.isMemoryCacheable() &amp;&amp; previous.isComplete();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isEquivalentTo</span><span class="params">(Request o)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> localOverrideWidth == otherLocalOverrideWidth</span><br><span class="line">                &amp;&amp; localOverrideHeight == otherLocalOverrideHeight</span><br><span class="line">                &amp;&amp; Util.bothModelsNullEquivalentOrEquals(localModel, otherLocalModel)</span><br><span class="line">                &amp;&amp; localTransocdeClass.equals(otherLocalTransocdeClass)</span><br><span class="line">                &amp;&amp; localRequestOptions.equals(otherLocalRequestOptions)</span><br><span class="line">                &amp;&amp; localPriority == otherLocalPriority</span><br><span class="line">                &amp;&amp; localListenerCount == otherLocalListenerCount;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>等效的意思为同样的宽高，同样的model，同样的接收resourceClass,同样的优先级，和相同数量的Listener。这里不使用equals/hashCode的原因是因为不要求RequestListener实现equals/hashcode。</p>
+<p>如果两者等价，则让之前的request去请求。</p>
+<p>可以总结为:<br>加载同样的model到同一个target上，如果两次model和target都未改变。并且跳过内存缓存，则让之前的请求再去加载一次。</p>
+<a id="more"></a>
+
+<h2 id="Engine-loadFromMemory"><a href="#Engine-loadFromMemory" class="headerlink" title="Engine # loadFromMemory"></a>Engine # loadFromMemory</h2><p>这一部分是从内存中获取缓存</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> EngineResource&lt;?&gt; loadFromMemory(EngineKey key, <span class="keyword">boolean</span> isMemoryCacheable, <span class="keyword">long</span> startTime) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!isMemoryCacheable) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        EngineResource&lt;?&gt; active = loadFromActiveResources(key);</span><br><span class="line">        <span class="keyword">if</span> (active != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> active;</span><br><span class="line">        &#125;</span><br><span class="line">        EngineResource&lt;?&gt; cached = loadFromCache(key);</span><br><span class="line">        <span class="keyword">if</span> (cached != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> cached;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到内存缓存被细化成了两部分，一个是开头提到的ActiveResources,另一部分是MemoryCache</p>
+<h3 id="loadFromActiveResources"><a href="#loadFromActiveResources" class="headerlink" title="loadFromActiveResources"></a>loadFromActiveResources</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> EngineResource&lt;?&gt; loadFromActiveResources(Key key) &#123;</span><br><span class="line">        EngineResource&lt;?&gt; active = activeResources.get(key);</span><br><span class="line">        <span class="keyword">if</span> (active != <span class="keyword">null</span>) &#123;</span><br><span class="line">            active.acquire();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> active;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> EngineResource&lt;?&gt; get(Key key) &#123;</span><br><span class="line">    ResourceWeakReference activeRef = activeEngineResources.get(key);</span><br><span class="line">    <span class="keyword">if</span> (activeRef == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    EngineResource&lt;?&gt; active = activeRef.get();</span><br><span class="line">    <span class="keyword">if</span> (active == <span class="keyword">null</span>) &#123;</span><br><span class="line">      cleanupActiveReference(activeRef);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> active;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Map&lt;Key, ResourceWeakReference&gt; activeEngineResources = new HashMap&lt;&gt;()</code></p>
+<p>从ActiveResources取EngineResource的逻辑为,HashMap中通过Key取得Resource的弱引用。<br>如果取到了的话，判断弱引用中对象是否已经被GC，如果GC了的话则从activeEngineResources中移出。<br>否则使其其引用计数acquired++。并返回</p>
+<p>acquired用于资源recycle和release。执行release的时候，如果引用计数降到0的话，会调用Engine中的onResourceReleased。让其从ActiveResources中移除。执行recycler的时候，会让其内部资源，执行recycler。举个例子BitmapResource的recycler会<code>bitmapPool.put(bitmap)</code></p>
+<h3 id="loadFromCache"><a href="#loadFromCache" class="headerlink" title="loadFromCache"></a>loadFromCache</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> EngineResource&lt;?&gt; loadFromCache(Key key) &#123;</span><br><span class="line">        EngineResource&lt;?&gt; cached = getEngineResourceFromCache(key);</span><br><span class="line">        <span class="keyword">if</span> (cached != <span class="keyword">null</span>) &#123;</span><br><span class="line">            cached.acquire();</span><br><span class="line">            activeResources.activate(key, cached);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> cached;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> EngineResource&lt;?&gt; getEngineResourceFromCache(Key key) &#123;</span><br><span class="line">        Resource&lt;?&gt; cached = cache.remove(key);</span><br><span class="line">        <span class="keyword">final</span> EngineResource&lt;?&gt; result;</span><br><span class="line">        <span class="keyword">if</span> (cached == <span class="keyword">null</span>) &#123;</span><br><span class="line">            result = <span class="keyword">null</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (cached <span class="keyword">instanceof</span> EngineResource) &#123;</span><br><span class="line">            result = (EngineResource&lt;?&gt;) cached;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            result = <span class="keyword">new</span> EngineResource&lt;&gt;(cached, <span class="comment">/*isMemoryCacheable=*/</span> <span class="keyword">true</span>, <span class="comment">/*isRecyclable=*/</span> <span class="keyword">true</span>, key, <span class="comment">/*listener=*/</span> <span class="keyword">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>MemoryCache接口的默认实现为LruResourceCache,继承自LruCache&lt;Key, Resource&lt;?&gt;&gt;。调用的即是LruCache的remove方法,即从LinkedHashMap中remove，这里不扩展。</p>
+<p>流程很简单，从LruCache中remove掉Resource。如果成功，则将其激活。返回缓存。</p>
+<h3 id="LruResourceCache-默认大小探寻"><a href="#LruResourceCache-默认大小探寻" class="headerlink" title="LruResourceCache 默认大小探寻"></a>LruResourceCache 默认大小探寻</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">arrayPoolSize =</span><br><span class="line">                <span class="comment">//是否为低内存机器</span></span><br><span class="line">                isLowMemoryDevice(builder.activityManager)</span><br><span class="line">                        <span class="comment">//4mb/2 : 4mb</span></span><br><span class="line">                        ? builder.arrayPoolSizeBytes / LOW_MEMORY_BYTE_ARRAY_POOL_DIVISOR</span><br><span class="line">                        : builder.arrayPoolSizeBytes;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">//可用内存大概等于application可用内存*是否低内存机器?0.33:0.4</span></span><br><span class="line">        <span class="keyword">int</span> maxSize = getMaxSize(builder.activityManager, builder.maxSizeMultiplier, builder.lowMemoryMaxSizeMultiplier);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//屏幕宽高</span></span><br><span class="line">        <span class="keyword">int</span> widthPixels = builder.screenDimensions.getWidthPixels();</span><br><span class="line">        <span class="keyword">int</span> heightPixels = builder.screenDimensions.getHeightPixels();</span><br><span class="line">        <span class="comment">//屏幕面积 * 4 ,即满满一屏幕的图片占用内存</span></span><br><span class="line">        <span class="keyword">int</span> screenSize = widthPixels * heightPixels * BYTES_PER_ARGB_8888_PIXEL;</span><br><span class="line">        <span class="comment">//bitmap 缓存池 = 屏幕占用内存 * Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.O ? 4 : 1</span></span><br><span class="line">        <span class="keyword">int</span> targetBitmapPoolSize = Math.round(screenSize * builder.bitmapPoolScreens);</span><br><span class="line">        <span class="comment">//bitmap 缓存 = 屏幕占用内存 * 2</span></span><br><span class="line">        <span class="keyword">int</span> targetMemoryCacheSize = Math.round(screenSize * builder.memoryCacheScreens);</span><br><span class="line">        <span class="comment">//最大可用内存减去4mb/2mb</span></span><br><span class="line">        <span class="keyword">int</span> availableSize = maxSize - arrayPoolSize;</span><br><span class="line">        <span class="comment">//如果两处bitmap 缓存相加 小于 可用内存</span></span><br><span class="line">        <span class="keyword">if</span> (targetMemoryCacheSize + targetBitmapPoolSize &lt;= availableSize) &#123;</span><br><span class="line">            memoryCacheSize = targetMemoryCacheSize;</span><br><span class="line">            bitmapPoolSize = targetBitmapPoolSize;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">//否则根据可用内存进行分配</span></span><br><span class="line">            <span class="keyword">float</span> part = availableSize / (builder.bitmapPoolScreens + builder.memoryCacheScreens);</span><br><span class="line">            memoryCacheSize = Math.round(part * builder.memoryCacheScreens);</span><br><span class="line">            bitmapPoolSize = Math.round(part * builder.bitmapPoolScreens);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">memoryCache = <span class="keyword">new</span> LruResourceCache(memorySizeCalculator.getMemoryCacheSize());</span><br></pre></td></tr></table></figure>
+
+<p>可以得出LruResourceCache的缓存大小在大内存机器上为2屏幕图片*2的大小</p>
+<h2 id="DecodeJob-runWrapped"><a href="#DecodeJob-runWrapped" class="headerlink" title="DecodeJob # runWrapped"></a>DecodeJob # runWrapped</h2><p>回到DecodeJob中。这一部分，是从磁盘中获取缓存</p>
+<blockquote>
+<p>俯瞰整个流程</p>
+<p>从头往后的Stage顺序</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">enum</span> Stage &#123;</span><br><span class="line">    <span class="comment">/** The initial stage. */</span></span><br><span class="line">    INITIALIZE,</span><br><span class="line">    <span class="comment">/** Decode from a cached resource. */</span></span><br><span class="line">    RESOURCE_CACHE,</span><br><span class="line">    <span class="comment">/** Decode from cached source data. */</span></span><br><span class="line">    DATA_CACHE,</span><br><span class="line">    <span class="comment">/** Decode from retrieved source. */</span></span><br><span class="line">    SOURCE,</span><br><span class="line">    <span class="comment">/** Encoding transformed resources after a successful load. */</span></span><br><span class="line">    ENCODE,</span><br><span class="line">    <span class="comment">/** No more viable stages. */</span></span><br><span class="line">    FINISHED,</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">runWrapped</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (runReason) &#123;</span><br><span class="line">            <span class="keyword">case</span> INITIALIZE:</span><br><span class="line">                stage = getNextStage(DecodeJob.Stage.INITIALIZE);</span><br><span class="line">                currentGenerator = getNextGenerator();</span><br><span class="line">                runGenerators();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> SWITCH_TO_SOURCE_SERVICE:</span><br><span class="line">                runGenerators();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> DECODE_DATA:</span><br><span class="line">                decodeFromRetrievedData();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Unrecognized run reason: "</span> + runReason);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> DecodeJob.<span class="function">Stage <span class="title">getNextStage</span><span class="params">(DecodeJob.Stage current)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (current) &#123;</span><br><span class="line">            <span class="keyword">case</span> INITIALIZE:</span><br><span class="line">                <span class="keyword">return</span> diskCacheStrategy.decodeCachedResource()</span><br><span class="line">                        ? DecodeJob.Stage.RESOURCE_CACHE</span><br><span class="line">                        : getNextStage(DecodeJob.Stage.RESOURCE_CACHE);</span><br><span class="line">            <span class="keyword">case</span> RESOURCE_CACHE:</span><br><span class="line">                <span class="keyword">return</span> diskCacheStrategy.decodeCachedData()</span><br><span class="line">                        ? DecodeJob.Stage.DATA_CACHE</span><br><span class="line">                        : getNextStage(DecodeJob.Stage.DATA_CACHE);</span><br><span class="line">            <span class="keyword">case</span> DATA_CACHE:</span><br><span class="line">                <span class="keyword">return</span> onlyRetrieveFromCache ? DecodeJob.Stage.FINISHED : DecodeJob.Stage.SOURCE;</span><br><span class="line">            <span class="keyword">case</span> SOURCE:</span><br><span class="line">            <span class="keyword">case</span> FINISHED:</span><br><span class="line">                <span class="keyword">return</span> DecodeJob.Stage.FINISHED;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Unrecognized stage: "</span> + current);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">private</span> DataFetcherGenerator <span class="title">getNextGenerator</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (stage) &#123;</span><br><span class="line">      <span class="keyword">case</span> RESOURCE_CACHE:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResourceCacheGenerator(decodeHelper, <span class="keyword">this</span>);</span><br><span class="line">      <span class="keyword">case</span> DATA_CACHE:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> DataCacheGenerator(decodeHelper, <span class="keyword">this</span>);</span><br><span class="line">      <span class="keyword">case</span> SOURCE:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SourceGenerator(decodeHelper, <span class="keyword">this</span>);</span><br><span class="line">      <span class="keyword">case</span> FINISHED:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Unrecognized stage: "</span> + stage);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">runGenerators</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        currentThread = Thread.currentThread();</span><br><span class="line">        startFetchTime = LogTime.getLogTime();</span><br><span class="line">        <span class="keyword">boolean</span> isStarted = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">while</span> (!isCancelled &amp;&amp; currentGenerator != <span class="keyword">null</span> &amp;&amp; !(isStarted = currentGenerator.startNext())) &#123;</span><br><span class="line">            stage = getNextStage(stage);</span><br><span class="line">            currentGenerator = getNextGenerator();</span><br><span class="line">            <span class="keyword">if</span> (stage == DecodeJob.Stage.SOURCE) &#123;</span><br><span class="line">                reschedule();</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//略...</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>从前往后根据runReason转换DecodeJob.Stage，根据DecodeJob.Stage得到DataFetcherGenerator</p>
+<p>DataFetcherGenerator实现有三个:</p>
+<ul>
+<li>ResourceCacheGenerator,从cache中查找已经被转码图片资源</li>
+<li>DataCacheGenerator从data中查找原生的未被修改的资源</li>
+<li>SourceGenerator从源头找,默认策略是先缓存到磁盘，然后从磁盘加载</li>
+</ul>
+<h4 id="ResourceCacheGenerator"><a href="#ResourceCacheGenerator" class="headerlink" title="ResourceCacheGenerator"></a>ResourceCacheGenerator</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">startNext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//略。。。。</span></span><br><span class="line">        <span class="keyword">while</span> (modelLoaders == <span class="keyword">null</span> || !hasNextModelLoader()) &#123;</span><br><span class="line">            resourceClassIndex++;</span><br><span class="line">            <span class="keyword">if</span> (resourceClassIndex &gt;= resourceClasses.size()) &#123;</span><br><span class="line">                sourceIdIndex++;</span><br><span class="line">                <span class="keyword">if</span> (sourceIdIndex &gt;= sourceIds.size()) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                resourceClassIndex = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            Key sourceId = sourceIds.get(sourceIdIndex);</span><br><span class="line">            Class&lt;?&gt; resourceClass = resourceClasses.get(resourceClassIndex);</span><br><span class="line">            Transformation&lt;?&gt; transformation = helper.getTransformation(resourceClass);</span><br><span class="line">            currentKey = <span class="keyword">new</span> ResourceCacheKey(helper.getArrayPool(), sourceId, helper.getSignature(), helper.getWidth(), helper.getHeight(), transformation, resourceClass, helper.getOptions());</span><br><span class="line">            <span class="comment">//从DiskLruCacheWrapper中查找缓存，返回的是一个file</span></span><br><span class="line">            cacheFile = helper.getDiskCache().get(currentKey);</span><br><span class="line">            <span class="keyword">if</span> (cacheFile != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">//找到之后，modelLoaders不为空，终止循环</span></span><br><span class="line">                sourceKey = sourceId;</span><br><span class="line">                modelLoaders = helper.getModelLoaders(cacheFile);</span><br><span class="line">                <span class="comment">//并且可以进入下面的while循环</span></span><br><span class="line">                modelLoaderIndex = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        loadData = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">boolean</span> started = <span class="keyword">false</span>;</span><br><span class="line">        <span class="comment">//这里还需要通过fetcher把file转换成想要的result</span></span><br><span class="line">        <span class="keyword">while</span> (!started &amp;&amp; hasNextModelLoader()) &#123;</span><br><span class="line">            ModelLoader&lt;File, ?&gt; modelLoader = modelLoaders.get(modelLoaderIndex++);</span><br><span class="line">            loadData = modelLoader.buildLoadData(cacheFile, helper.getWidth(), helper.getHeight(), helper.getOptions());</span><br><span class="line">            <span class="keyword">if</span> (loadData != <span class="keyword">null</span> &amp;&amp; helper.hasLoadPath(loadData.fetcher.getDataClass())) &#123;</span><br><span class="line">                started = <span class="keyword">true</span>;</span><br><span class="line">                loadData.fetcher.loadData(helper.getPriority(), <span class="keyword">this</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> started;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>本文主要关心<code>cacheFile = helper.getDiskCache().get(currentKey);</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> File <span class="title">get</span><span class="params">(Key key)</span> </span>&#123;</span><br><span class="line">        String safeKey = safeKeyGenerator.getSafeKey(key);</span><br><span class="line">        File result = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">final</span> DiskLruCache.Value value = getDiskCache().get(safeKey);</span><br><span class="line">            <span class="keyword">if</span> (value != <span class="keyword">null</span>) &#123;</span><br><span class="line">                result = value.getFile(<span class="number">0</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; </span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">synchronized</span> DiskLruCache <span class="title">getDiskCache</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (diskLruCache == <span class="keyword">null</span>) &#123;</span><br><span class="line">          diskLruCache = DiskLruCache.open(directory, APP_VERSION, VALUE_COUNT, maxSize);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> diskLruCache;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用默认配置的话:</p>
+<p>directory = /data/user/0/com.example.dingopractice/cache/image_manager_disk_cache</p>
+<p>maxSize = 250 * 1024 * 1024</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> DiskLruCache <span class="title">open</span><span class="params">(File directory, <span class="keyword">int</span> appVersion, <span class="keyword">int</span> valueCount, <span class="keyword">long</span> maxSize)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        File backupFile = <span class="keyword">new</span> File(directory, JOURNAL_FILE_BACKUP);</span><br><span class="line">        <span class="keyword">if</span> (backupFile.exists()) &#123;</span><br><span class="line">            File journalFile = <span class="keyword">new</span> File(directory, JOURNAL_FILE);</span><br><span class="line">            <span class="keyword">if</span> (journalFile.exists()) &#123;</span><br><span class="line">                backupFile.delete();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                renameTo(backupFile, journalFile, <span class="keyword">false</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        DiskLruCache cache = <span class="keyword">new</span> DiskLruCache(directory, appVersion, valueCount, maxSize);</span><br><span class="line">        <span class="keyword">if</span> (cache.journalFile.exists()) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                cache.readJournal();</span><br><span class="line">                cache.processJournal();</span><br><span class="line">                <span class="keyword">return</span> cache;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException journalIsCorrupt) &#123;</span><br><span class="line">                cache.delete();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        directory.mkdirs();</span><br><span class="line">        cache = <span class="keyword">new</span> DiskLruCache(directory, appVersion, valueCount, maxSize);</span><br><span class="line">        cache.rebuildJournal();</span><br><span class="line">        <span class="keyword">return</span> cache;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="DiskLruCache"><a href="#DiskLruCache" class="headerlink" title="DiskLruCache"></a>DiskLruCache</h4><blockquote>
+<p>DiskLruCache 会读日志文件上的记录，根据该日志文件的记录将所有历史操作“重做”一遍：在执行历史操作时，会根据日志记录对缓存项进行添加和删除操作。</p>
+</blockquote>
+<p>几个关键变量</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> File directory;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> File journalFile;</span><br><span class="line"><span class="keyword">private</span> Writer journalWriter;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">long</span> maxSize;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">long</span> size = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> LinkedHashMap&lt;String, DiskLruCache.Entry&gt; lruEntries;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>directory 缓存地址</li>
+<li>journalFile 日志文件</li>
+<li>journalWriter 负责journalFile写入</li>
+<li>maxSize最大容量</li>
+<li>size 当前缓存的总容量</li>
+<li>lruEntries 内存中对应实体</li>
+</ul>
+<h5 id="DiskLruCache-journalFile"><a href="#DiskLruCache-journalFile" class="headerlink" title="DiskLruCache # journalFile"></a>DiskLruCache # journalFile</h5><blockquote>
+<p>libcore.io.DiskLruCache</p>
+<p>1</p>
+<p>1</p>
+<p>1</p>
+<p>DIRTY 134766233570fd79e571ccfec10c0f5dc5b9d6698b4852499e88c157df4b9e2e</p>
+<p>CLEAN 134766233570fd79e571ccfec10c0f5dc5b9d6698b4852499e88c157df4b9e2e 16230</p>
+</blockquote>
+<ul>
+<li>DIRTY 表示正在修改和写入的缓存</li>
+<li>CLEAN 表示操作成功的缓存，后面数字为缓存大小</li>
+<li>REMOVE 表示缓存被删除了</li>
+<li>READ 表示缓存被访问</li>
+</ul>
+<h5 id="DiskLruCache-Entry"><a href="#DiskLruCache-Entry" class="headerlink" title="DiskLruCache # Entry"></a>DiskLruCache # Entry</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span>[] lengths;</span><br><span class="line"><span class="keyword">private</span> Editor currentEditor;</span><br><span class="line">File[] cleanFiles;</span><br><span class="line">File[] dirtyFiles;</span><br></pre></td></tr></table></figure>
+
+<p>Entry同样有cleanFiles和dirtyFiles，写入的时候通过Editor写入</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">DiskLruCache.Editor editor = diskCache.edit(safeKey);</span><br><span class="line">     <span class="keyword">try</span> &#123;</span><br><span class="line">       File file = editor.getFile(<span class="number">0</span>);</span><br><span class="line">       <span class="keyword">if</span> (writer.write(file)) &#123;</span><br><span class="line">         editor.commit();</span><br><span class="line">       &#125;</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>DiskLruCache 核心思想就是利用 LinkedHashMap 来做到 LRU，然后每个 Entry 中做到读写分离，互不影响。</p>
+</blockquote>
+<h3 id="DataCacheGenerator"><a href="#DataCacheGenerator" class="headerlink" title="DataCacheGenerator"></a>DataCacheGenerator</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">startNext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="comment">//略。。。</span></span><br><span class="line">      Key originalKey = <span class="keyword">new</span> DataCacheKey(sourceId, helper.getSignature());</span><br><span class="line">      cacheFile = helper.getDiskCache().get(originalKey);</span><br><span class="line">      <span class="comment">//略。。。</span></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>与ResourceCacheGenerator相类似，不再赘述</p>
+<h3 id="SourceGenerator"><a href="#SourceGenerator" class="headerlink" title="SourceGenerator"></a>SourceGenerator</h3><p>上篇分析glide流程的分析过。从source获取成功后，存入DiskCache</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helper.getDiskCache().put(originalKey, writer);</span><br></pre></td></tr></table></figure>
+
+<p>至此，三级缓存取的过程完成。</p>
+<h2 id="MemoryCache-存入"><a href="#MemoryCache-存入" class="headerlink" title="MemoryCache 存入"></a>MemoryCache 存入</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResourceReleased</span><span class="params">(Key cacheKey, EngineResource&lt;?&gt; resource)</span> </span>&#123;</span><br><span class="line">  activeResources.deactivate(cacheKey);</span><br><span class="line">  <span class="keyword">if</span> (resource.isMemoryCacheable()) &#123;</span><br><span class="line">    cache.put(cacheKey, resource);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    resourceRecycler.recycle(resource, <span class="comment">/*forceNextFrame=*/</span> <span class="keyword">false</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由两处调用。一处为ActiveResources 清理弱引用队列。一处为EngineResource # release到没有引用</p>
+<h2 id="DiskCache-存入"><a href="#DiskCache-存入" class="headerlink" title="DiskCache 存入"></a>DiskCache 存入</h2><p>一处为DecodeJob 的 notifyEncodeAndRelease</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">deferredEncodeManager.encode(diskCacheProvider, options);</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">encode</span><span class="params">(DecodeJob.DiskCacheProvider diskCacheProvider, Options options)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            diskCacheProvider.getDiskCache().put(key, <span class="keyword">new</span> DataCacheWriter&lt;&gt;(encoder, toEncode, options));</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            toEncode.unlock();</span><br><span class="line">            GlideTrace.endSection();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>一处是在SourceGenerator # cacheData</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">cacheData</span><span class="params">(Object dataToCache)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//略。。</span></span><br><span class="line">        originalKey = <span class="keyword">new</span> DataCacheKey(loadData.sourceKey, helper.getSignature());</span><br><span class="line">        helper.getDiskCache().put(originalKey, writer);</span><br><span class="line">        <span class="comment">//略。。</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="BitmapPool-amp-amp-ArrayPool"><a href="#BitmapPool-amp-amp-ArrayPool" class="headerlink" title="BitmapPool &amp;&amp; ArrayPool"></a>BitmapPool &amp;&amp; ArrayPool</h3><p>这两者的实现分别为LruBitmapPool和LruArrayPool。这两者并不是缓存，而是为了减少gc而使用的对象池</p>
+<h4 id="BitmapPool-put"><a href="#BitmapPool-put" class="headerlink" title="BitmapPool # put"></a>BitmapPool # put</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(Bitmap bitmap)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (bitmap == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"Bitmap must not be null"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (bitmap.isRecycled()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Cannot pool recycled bitmap"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!bitmap.isMutable()</span><br><span class="line">                || strategy.getSize(bitmap) &gt; maxSize</span><br><span class="line">                || !allowedConfigs.contains(bitmap.getConfig())) &#123;</span><br><span class="line">            bitmap.recycle();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> size = strategy.getSize(bitmap);</span><br><span class="line">        strategy.put(bitmap);</span><br><span class="line">        tracker.add(bitmap);</span><br><span class="line"></span><br><span class="line">        puts++;</span><br><span class="line">        currentSize += size;</span><br><span class="line">        dump();</span><br><span class="line">        evict();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="BitmapPool-get"><a href="#BitmapPool-get" class="headerlink" title="BitmapPool # get"></a>BitmapPool # get</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Bitmap <span class="title">get</span><span class="params">(<span class="keyword">int</span> width, <span class="keyword">int</span> height, Bitmap.Config config)</span> </span>&#123;</span><br><span class="line">        Bitmap result = getDirtyOrNull(width, height, config);</span><br><span class="line">        <span class="keyword">if</span> (result != <span class="keyword">null</span>) &#123;</span><br><span class="line">            result.eraseColor(Color.TRANSPARENT);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            result = createBitmap(width, height, config);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>具体参考: <a href="https://toutiao.io/posts/ptdi4q/preview" target="_blank" rel="noopener">Android 性能优化系列（三）：使用对象池优化内存</a></p>
+<p>感谢作者 李剑昆的分享</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="../../../../tags/Android/" rel="tag"># Android</a>
+          
+            <a href="../../../../tags/Android-Source-Analysis/" rel="tag"># Android Source Analysis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="../../07/Glide(1)/" rel="next" title="Glide源码阅读笔记(一) - url加载到ImageView全流程">
+                <i class="fa fa-chevron-left"></i> Glide源码阅读笔记(一) - url加载到ImageView全流程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="../../../../2222/02/08/newBegin/" rel="prev" title="序">
+                序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="../../../../images/Avatar.png"
+                alt="DingoDemon" />
+            
+              <p class="site-author-name" itemprop="name">DingoDemon</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="../../../../archives">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="../../../../tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:wangdingyusg@163.com" target="_blank" title="Email">
+                      
+                        <i class="fa fa-fw fa-globe"></i>Email</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/DingoDemon" target="_blank" title="github">
+                      
+                        <i class="fa fa-fw fa-globe"></i>github</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简述"><span class="nav-number">1.</span> <span class="nav-text">简述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如果Target上已经有request的话-并且两者等价"><span class="nav-number">2.</span> <span class="nav-text">如果Target上已经有request的话,并且两者等价</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Engine-loadFromMemory"><span class="nav-number">3.</span> <span class="nav-text">Engine # loadFromMemory</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#loadFromActiveResources"><span class="nav-number">3.1.</span> <span class="nav-text">loadFromActiveResources</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#loadFromCache"><span class="nav-number">3.2.</span> <span class="nav-text">loadFromCache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LruResourceCache-默认大小探寻"><span class="nav-number">3.3.</span> <span class="nav-text">LruResourceCache 默认大小探寻</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DecodeJob-runWrapped"><span class="nav-number">4.</span> <span class="nav-text">DecodeJob # runWrapped</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ResourceCacheGenerator"><span class="nav-number">4.0.1.</span> <span class="nav-text">ResourceCacheGenerator</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DiskLruCache"><span class="nav-number">4.0.2.</span> <span class="nav-text">DiskLruCache</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#DiskLruCache-journalFile"><span class="nav-number">4.0.2.1.</span> <span class="nav-text">DiskLruCache # journalFile</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DiskLruCache-Entry"><span class="nav-number">4.0.2.2.</span> <span class="nav-text">DiskLruCache # Entry</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DataCacheGenerator"><span class="nav-number">4.1.</span> <span class="nav-text">DataCacheGenerator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SourceGenerator"><span class="nav-number">4.2.</span> <span class="nav-text">SourceGenerator</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MemoryCache-存入"><span class="nav-number">5.</span> <span class="nav-text">MemoryCache 存入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DiskCache-存入"><span class="nav-number">6.</span> <span class="nav-text">DiskCache 存入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BitmapPool-amp-amp-ArrayPool"><span class="nav-number">6.1.</span> <span class="nav-text">BitmapPool &amp;&amp; ArrayPool</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#BitmapPool-put"><span class="nav-number">6.1.1.</span> <span class="nav-text">BitmapPool # put</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BitmapPool-get"><span class="nav-number">6.1.2.</span> <span class="nav-text">BitmapPool # get</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DingoDemon</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="../../../../js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="../../../../js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="../../../../js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="../../../../js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="../../../../js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="../../../../js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="../../../../js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

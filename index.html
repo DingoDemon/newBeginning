@@ -343,7 +343,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com2020/07/07/Glide/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com2020/07/08/Glide(2)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="DingoDemon">
@@ -362,7 +362,149 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="2020/07/07/Glide/" itemprop="url">Glide源码阅读笔记(一) - url加载到ImageView全流程</a></h1>
+                <a class="post-title-link" href="2020/07/08/Glide(2)/" itemprop="url">Glide源码阅读笔记(二) - 缓存机制</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-07-08T21:40:26+08:00">
+                2020-07-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>Glide 版本 4.11</p>
+<p>以默认缓存策略追溯代码</p>
+</blockquote>
+<h2 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h2><blockquote>
+<p>Active resources are those that have been provided to at least one request and have not yet<br>been released. Once all consumers of a resource have released that resource, the resource then<br>goes to cache. If the resource is ever returned to a new consumer from cache, it is re-added to<br>the active resources. If the resource is evicted from the cache, its resources are recycled and<br>re-used if possible and the resource is discarded. There is no strict requirement that<br>consumers release their resources so active resources are held weakly.</p>
+</blockquote>
+<p>这是Engine里的一段注释,描述了ActiveResources的定义。我理解为仍在界面上已经被加载没有被回收的图片。</p>
+<ol>
+<li>ActiveResources</li>
+<li>MemoryCache</li>
+<li>DiskCache</li>
+</ol>
+<p>接下来逐一拆解Glide如何缓存加载图片</p>
+<h2 id="如果Target上已经有request的话-并且两者等价"><a href="#如果Target上已经有request的话-并且两者等价" class="headerlink" title="如果Target上已经有request的话,并且两者等价"></a>如果Target上已经有request的话,并且两者等价</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Y <span class="title">into</span><span class="params">(//参数略.....</span></span></span><br><span class="line"><span class="function"><span class="params">    )</span> </span>&#123;</span><br><span class="line">        Request request = buildRequest(target, targetListener, options, callbackExecutor);</span><br><span class="line">        Request previous = target.getRequest();</span><br><span class="line">        <span class="comment">//如果request 和 target上的完全等价</span></span><br><span class="line">        <span class="keyword">if</span> (request.isEquivalentTo(previous) &amp;&amp; !isSkipMemoryCacheWithCompletePreviousRequest(options, previous)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!Preconditions.checkNotNull(previous).isRunning()) &#123;</span><br><span class="line">                previous.begin();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> target;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//跳过内存缓存，并且之前已经请求完毕</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">isSkipMemoryCacheWithCompletePreviousRequest</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">            BaseRequestOptions&lt;?&gt; options, Request previous)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> !options.isMemoryCacheable() &amp;&amp; previous.isComplete();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isEquivalentTo</span><span class="params">(Request o)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> localOverrideWidth == otherLocalOverrideWidth</span><br><span class="line">                &amp;&amp; localOverrideHeight == otherLocalOverrideHeight</span><br><span class="line">                &amp;&amp; Util.bothModelsNullEquivalentOrEquals(localModel, otherLocalModel)</span><br><span class="line">                &amp;&amp; localTransocdeClass.equals(otherLocalTransocdeClass)</span><br><span class="line">                &amp;&amp; localRequestOptions.equals(otherLocalRequestOptions)</span><br><span class="line">                &amp;&amp; localPriority == otherLocalPriority</span><br><span class="line">                &amp;&amp; localListenerCount == otherLocalListenerCount;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>等效的意思为同样的宽高，同样的model，同样的接收resourceClass,同样的优先级，和相同数量的Listener。这里不使用equals/hashCode的原因是因为不要求RequestListener实现equals/hashcode。</p>
+<p>如果两者等价，则让之前的request去请求。</p>
+<p>可以总结为:<br>加载同样的model到同一个target上，如果两次model和target都未改变。并且跳过内存缓存，则让之前的请求再去加载一次。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="2020/07/08/Glide(2)/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com2020/07/07/Glide(1)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DingoDemon">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/Avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DingoDemon">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="2020/07/07/Glide(1)/" itemprop="url">Glide源码阅读笔记(一) - url加载到ImageView全流程</a></h1>
         
 
         <div class="post-meta">
@@ -435,7 +577,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GuardedBy</span>(<span class="string">"Glide.class"</span>)</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">checkAndInitializeGlide</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    @NonNull Context context, @Nullable GeneratedAppGlideModule generatedAppGlideModule)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (isInitializing) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(</span><br><span class="line">        <span class="string">"You cannot call Glide.get() in registerComponents(),"</span></span><br><span class="line">            + <span class="string">" use the provided Glide instance instead"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  isInitializing = <span class="keyword">true</span>;</span><br><span class="line">  initializeGlide(context, generatedAppGlideModule);</span><br><span class="line">  isInitializing = <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="2020/07/07/Glide/#more" rel="contents">
+            <a class="btn" href="2020/07/07/Glide(1)/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1456,144 +1598,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com2020/06/07/Binder(%E4%B8%80)/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="DingoDemon">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/Avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="DingoDemon">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="2020/06/07/Binder(%E4%B8%80)/" itemprop="url">Binder(一)</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-07T22:41:02+08:00">
-                2020-06-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h4 id="鸣谢"><a href="#鸣谢" class="headerlink" title="鸣谢"></a>鸣谢</h4><p><a href="https://juejin.im/post/5acccf845188255c3201100f" target="_blank" rel="noopener">写给 Android 应用工程师的 Binder 原理剖析</a></p>
-<p><a href="https://yuqirong.me/2019/05/21/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Binder/#comments" target="_blank" rel="noopener">深入理解Binder</a></p>
-<p><a href="https://juejin.im/post/5db07d9a6fb9a020333c2d10" target="_blank" rel="noopener">Android Binder原理（一）学习Binder前必须要了解的知识点</a></p>
-<h1 id="什么是Binder"><a href="#什么是Binder" class="headerlink" title="什么是Binder"></a>什么是Binder</h1><p>Binder按层可分类为</p>
-<ul>
-<li>Java Binder</li>
-<li>Native Binder</li>
-<li>Kernel Binder</li>
-</ul>
-<p>Binder按职责可分类为</p>
-<ul>
-<li>Binder可以是一种进程间通信的方式，翻译为胶水，将两个进程牢牢的粘在一起。</li>
-<li>也可以指Binder IPC中的远程对象。</li>
-<li>也可以是硬件驱动。</li>
-</ul>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="2020/06/07/Binder(%E4%B8%80)/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1648,7 +1652,7 @@
               
                 <a href="archives">
               
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
