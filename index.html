@@ -431,6 +431,7 @@
 <p>Active resources are those that have been provided to at least one request and have not yet<br>been released. Once all consumers of a resource have released that resource, the resource then<br>goes to cache. If the resource is ever returned to a new consumer from cache, it is re-added to<br>the active resources. If the resource is evicted from the cache, its resources are recycled and<br>re-used if possible and the resource is discarded. There is no strict requirement that<br>consumers release their resources so active resources are held weakly.</p>
 </blockquote>
 <p>这是Engine里的一段注释,描述了ActiveResources的定义。我理解为仍在界面上已经被加载没有被回收的图片。</p>
+<p>Glide记载过程中用到的缓存分为三级</p>
 <ol>
 <li>ActiveResources</li>
 <li>MemoryCache</li>
