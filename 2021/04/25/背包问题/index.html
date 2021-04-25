@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="../../../../lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="../../../../lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="../../../../css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="../../../../images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../../images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../../../../images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="../../../../images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="数据结构与算法," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="背包问题容量为C的背包。物品i的重量是W[i]，价值是V[i]。如何拿取使之价值最大。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="背包问题">
+<meta property="og:url" content="http://yoursite.com/2021/04/25/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="DingoDemon">
+<meta property="og:description" content="背包问题容量为C的背包。物品i的重量是W[i]，价值是V[i]。如何拿取使之价值最大。">
+<meta property="article:published_time" content="2021-04-25T09:53:35.000Z">
+<meta property="article:modified_time" content="2021-04-25T09:35:30.696Z">
+<meta property="article:author" content="DingoDemon">
+<meta property="article:tag" content="数据结构与算法">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/04/25/背包问题/"/>
+
+
+
+
+
+  <title>背包问题 | DingoDemon</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">DingoDemon</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">welcome to my zone</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DingoDemon">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="../../../../images/Avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DingoDemon">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">背包问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-04-25T17:53:35+08:00">
+                2021-04-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="背包问题"><a href="#背包问题" class="headerlink" title="背包问题"></a>背包问题</h1><p>容量为C的背包。物品i的重量是W[i]，价值是V[i]。如何拿取使之价值最大。</p>
+<a id="more"></a>
+
+<h2 id="例题-物品重量和价值比如下，背包总容量是10，物品总种类是4"><a href="#例题-物品重量和价值比如下，背包总容量是10，物品总种类是4" class="headerlink" title="例题 物品重量和价值比如下，背包总容量是10，物品总种类是4"></a>例题 物品重量和价值比如下，背包总容量是10，物品总种类是4</h2><table>
+<thead>
+<tr>
+<th>重价比</th>
+<th>重量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>价值</td>
+<td>2/1</td>
+</tr>
+<tr>
+<td>价值</td>
+<td>3/3</td>
+</tr>
+<tr>
+<td>价值</td>
+<td>4/5</td>
+</tr>
+<tr>
+<td>价值</td>
+<td>7/9</td>
+</tr>
+</tbody></table>
+<h2 id="0-1背包问题"><a href="#0-1背包问题" class="headerlink" title="0/1背包问题"></a>0/1背包问题</h2><blockquote>
+<p>0/1的意思是不拿/拿每样物品最多拿一次，贪心/选择比例最大的物品不一定会拿出最优解。</p>
+</blockquote>
+<p>设置dp数组，横j纵i。i表示拿到第几个物品，j表示空间。</p>
+<p>初始化dp数组表示意义如下</p>
+<table>
+<thead>
+<tr>
+<th>dp</th>
+<th>空间0</th>
+<th>空间1</th>
+<th>空间2</th>
+<th>空间n</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>拿第0个物品</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>拿第1个物品</td>
+<td>0</td>
+<td>当前最大价值</td>
+<td>当前最大价值</td>
+<td>当前最大价值</td>
+</tr>
+<tr>
+<td>拿第2个物品</td>
+<td>0</td>
+<td>当前最大价值</td>
+<td>当前最大价值</td>
+<td>当前最大价值</td>
+</tr>
+<tr>
+<td>拿第3个物品</td>
+<td>0</td>
+<td>当前最大价值</td>
+<td>当前最大价值</td>
+<td>当前最大价值</td>
+</tr>
+</tbody></table>
+<p>预留空间0和拿第0个物品。作为dp转移方程i-1的前提。</p>
+<table>
+<thead>
+<tr>
+<th>dp</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>拿第0个物品</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>拿第1个物品</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>拿第2个物品</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>拿第3个物品</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>拿第4个物品</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>先拿第一个物品，重量2，价值1</p>
+<table>
+<thead>
+<tr>
+<th>dp</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>拿第0个物品</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>拿第1个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>拿第2个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>3？</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>拿第3个物品</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>拿第4个物品</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>再拿第二个物品，重量3，价值3。</p>
+<p>在容量是2的时候，由于装不下，所以此时dp的值是dp[i-1][2] 即1</p>
+<p>问题来到了容量是3的时候。装的下了。可以选择拿或者不拿。</p>
+<p>如果不拿此时dp的值是dp[i-1][j] 即dp[1][2] 即1。</p>
+<p>如果拿，dp[i-1][总容量-自身重量]+自身价值。在表中就是dp[1][0] 即0+3 = 3。</p>
+<p>得到递推方程</p>
+<p><em>dp[i][j] = max(dp[i-1][j],dp[i-1][总重量-自身重量]+自身价值)</em></p>
+<p>得到以下代码和dp数组</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">zeroOne</span><span class="params">(<span class="keyword">int</span>[][] goods, <span class="keyword">int</span> capacity)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[][] dp = <span class="keyword">new</span> <span class="keyword">int</span>[goods.length + <span class="number">1</span>][capacity + <span class="number">1</span>];</span><br><span class="line">    Arrays.fill(dp[<span class="number">0</span>], <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span>[] ints : dp) &#123;</span><br><span class="line">        ints[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; dp.length; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span>[] good = goods[i - <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">int</span> weight = good[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">int</span> value = good[<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt; capacity + <span class="number">1</span>; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (weight &gt; j) &#123;</span><br><span class="line">                <span class="comment">//重量超过容量，只有取上一个的</span></span><br><span class="line">                dp[i][j] = dp[i - <span class="number">1</span>][j];</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//重量没超过容量，二者取较大值</span></span><br><span class="line">                dp[i][j] = Math.max(</span><br><span class="line">                        dp[i - <span class="number">1</span>][j],</span><br><span class="line">                        dp[i - <span class="number">1</span>][j - weight] + value);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dp[goods.length][capacity];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>dp</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>拿第0个物品</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>拿第1个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>拿第2个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+</tr>
+<tr>
+<td>拿第3个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>5</td>
+<td>5</td>
+<td>6</td>
+<td>8</td>
+<td>8</td>
+<td>9</td>
+<td>9</td>
+</tr>
+<tr>
+<td>拿第4个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>5</td>
+<td>5</td>
+<td>6</td>
+<td>9</td>
+<td>9</td>
+<td>10</td>
+<td>12</td>
+</tr>
+</tbody></table>
+<p>根据dp的后无效性原则，当前状态只与上一个状态有关，例如本题中，i只与i-1有关。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (j &gt; weight) &#123;</span><br><span class="line">                dp[j] = max(dp[j], dp[j - weight] + value);</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以dp数组可以缩减为一位数组。此时j需要选择倒序，保证前面的数据是干净的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">zeroOne0</span><span class="params">(<span class="keyword">int</span>[][] goods, <span class="keyword">int</span> capacity)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[capacity + <span class="number">1</span>];</span><br><span class="line">    Arrays.fill(dp, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; goods.length + <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span>[] good = goods[i - <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">int</span> weight = good[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">int</span> value = good[<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = capacity; j &gt;= <span class="number">1</span>; j--) &#123;</span><br><span class="line">            <span class="keyword">if</span> (j &gt;= weight) &#123;</span><br><span class="line">                dp[j] = Math.max(</span><br><span class="line">                        dp[j],</span><br><span class="line">                        dp[j - weight] + value);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dp[capacity];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="完全背包"><a href="#完全背包" class="headerlink" title="完全背包"></a>完全背包</h2><p>每样物品的数量是无限的。换言之就是每一个物品可以取无限多次。</p>
+<blockquote>
+<p>每个物品的拿取上限，实际是k = capacity/weight。可以在i和j之间再做一次k循环达到目的。</p>
+</blockquote>
+<p>先观察只拿一件物品时的dp数组</p>
+<table>
+<thead>
+<tr>
+<th>dp</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>拿第0个物品</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>拿第1个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+<td>6</td>
+</tr>
+</tbody></table>
+<p>再看只拿两件件物品时的dp数组</p>
+<table>
+<thead>
+<tr>
+<th>dp</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>拿第0个物品</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>拿第1个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+<td>6</td>
+</tr>
+<tr>
+<td>拿第2个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>4</td>
+<td>6</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>重点关注拿第二个物品时容量为3，4，5，6时的最大值是如何推导出来的。</p>
+<ol>
+<li>容量为3时装的下了，所以拿物品2，此时价值为3</li>
+<li>容量为4时同理，只装的下一个物品2，此时价值为3</li>
+<li>容量为5时，装的下一个物品1一个物品2，此时价值为3+1 =4</li>
+<li>容量为6时，可以拿一个物品2，也可以拿2个物品2，也可以不拿。不拿时也就是dp[i-1][j]，选择拿一个物品2时，向前找dp[3][数量6 - 重量3] = 3，此时总的就是3+3。无需多次计算直接取前值+v即可。</li>
+</ol>
+<p>可以得出结论<br>dp[i][j]是由两个情况叠加决定的，一个是不拿当前物品也就是dp[i-1][j]。另外一个是拿当前物品，也就是dp[i][j-weight]+v。得到如下状态转移方程</p>
+<p><em>dp[i][j] = max(dp[i-1][j],dp[i][总重量-自身重量]+自身价值)</em></p>
+<p>和0/1背包问题很类似，只不过取i-1变成了取i，因为可以拿无限多次</p>
+<p>相应的代码和dp数组如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">complete</span><span class="params">(<span class="keyword">int</span>[][] goods, <span class="keyword">int</span> capacity)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[][] dp = <span class="keyword">new</span> <span class="keyword">int</span>[goods.length + <span class="number">1</span>][capacity + <span class="number">1</span>];</span><br><span class="line">    Arrays.fill(dp[<span class="number">0</span>], <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span>[] ints : dp) &#123;</span><br><span class="line">        ints[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; dp.length; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span>[] good = goods[i - <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">int</span> weight = good[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">int</span> value = good[<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt; capacity + <span class="number">1</span>; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (weight &gt; j) &#123;</span><br><span class="line">                dp[i][j] = dp[i - <span class="number">1</span>][j];</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                dp[i][j] = Math.max(</span><br><span class="line">                        dp[i - <span class="number">1</span>][j],</span><br><span class="line">                        dp[i][j - weight] + value);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dp[goods.length][capacity];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<table>
+<thead>
+<tr>
+<th>dp</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>拿第0个物品</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>拿第1个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+<td>5</td>
+</tr>
+<tr>
+<td>拿第2个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>4</td>
+<td>6</td>
+<td>6</td>
+<td>7</td>
+<td>9</td>
+<td>9</td>
+</tr>
+<tr>
+<td>拿第3个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>5</td>
+<td>5</td>
+<td>6</td>
+<td>8</td>
+<td>10</td>
+<td>10</td>
+<td>11</td>
+</tr>
+<tr>
+<td>拿第4个物品</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>5</td>
+<td>5</td>
+<td>6</td>
+<td>9</td>
+<td>10</td>
+<td>10</td>
+<td>12</td>
+</tr>
+</tbody></table>
+<p>在这里，如何压缩为一位数组呢？<br>在上一问里，使用的是逆向推，为了保持前面所谓上一行也就是(i-1)行<br>的数据是干净的。而在这里，要求保持数据是这一行最新的，所以只需要正向推即可！ <em>很巧妙啊</em></p>
+<p>代码如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">complete0</span><span class="params">(<span class="keyword">int</span>[][] goods, <span class="keyword">int</span> capacity)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[capacity + <span class="number">1</span>];</span><br><span class="line">    Arrays.fill(dp, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; goods.length + <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span>[] good = goods[i - <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">int</span> weight = good[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">int</span> value = good[<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt;= capacity; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (j &gt;= weight) &#123;</span><br><span class="line">                dp[j] = Math.max(</span><br><span class="line">                        dp[j],</span><br><span class="line">                        dp[j - weight] + value);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dp[capacity];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="多重背包问题"><a href="#多重背包问题" class="headerlink" title="多重背包问题"></a>多重背包问题</h2><p>物品的数量有限制，也就是物品i有N[i]个数量，即每个物品最多只能拿这么多次。</p>
+<blockquote>
+<p>同样考虑上限m。k = capacity/weight,n = N[i]。m = min(n,k)可以在i和j之间再做一次m循环达到目的。</p>
+</blockquote>
+<p>例题如下</p>
+<p>一共1000的总capacity。考虑如何安排</p>
+<table>
+<thead>
+<tr>
+<th>物品</th>
+<th>重量</th>
+<th>价值</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>80</td>
+<td>20</td>
+<td>4</td>
+</tr>
+<tr>
+<td>2</td>
+<td>40</td>
+<td>50</td>
+<td>9</td>
+</tr>
+<tr>
+<td>3</td>
+<td>30</td>
+<td>50</td>
+<td>7</td>
+</tr>
+<tr>
+<td>4</td>
+<td>40</td>
+<td>30</td>
+<td>6</td>
+</tr>
+<tr>
+<td>5</td>
+<td>20</td>
+<td>20</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<p>用0/1背包解决此问题的话</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">multiple</span><span class="params">(<span class="keyword">int</span>[][] goods, <span class="keyword">int</span> capacity)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[capacity + <span class="number">1</span>];</span><br><span class="line">      Arrays.fill(dp, <span class="number">0</span>);</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; goods.length + <span class="number">1</span>; i++) &#123;</span><br><span class="line">          <span class="keyword">int</span>[] good = goods[i - <span class="number">1</span>];</span><br><span class="line">          <span class="keyword">int</span> weight = good[<span class="number">0</span>];</span><br><span class="line">          <span class="keyword">int</span> value = good[<span class="number">1</span>];</span><br><span class="line">          <span class="keyword">int</span> maxCount = good[<span class="number">2</span>];</span><br><span class="line">          <span class="keyword">for</span> (<span class="keyword">int</span> j = capacity; j &gt;= <span class="number">1</span>; j--) &#123;</span><br><span class="line">              <span class="keyword">for</span> (<span class="keyword">int</span> k = <span class="number">0</span>; k &lt;= maxCount &amp;&amp; j &gt;= k * weight; k++) &#123;</span><br><span class="line">                  <span class="keyword">if</span> (j &gt;= weight) &#123;</span><br><span class="line">                      dp[j] = Math.max(</span><br><span class="line">                              dp[j],</span><br><span class="line">                              dp[j - k * weight] + k * value);</span><br><span class="line">                  &#125;</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> dp[capacity];</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="二位费用背包"><a href="#二位费用背包" class="headerlink" title="二位费用背包"></a>二位费用背包</h2><p>二位背包是指物品除了重量之外，还有了体积的属性。同样的背包也有体积最大值。</p>
+<p>在0/1背包的基础上，如何拿物品，使之容量/重量均不超出上限，且价值最大。</p>
+<p>将背包最大体积/最大重量设置为代价j,k。第i个物品对应的属性设置为a[i],b[i]。</p>
+<p>对比01背包，得到以下原始方程</p>
+<p>取到第i个物品时</p>
+<p>dp[i][j][k] = max ( dp[i-1][j][k] , dp[i-1][j-[ai]][k-b[i]]+ v)</p>
+<p>如果进行压缩，可以得到逆向递推方程</p>
+<p>dp[j][k] = max (dp[j][k] , dp[j-[ai]][k-b[i]]+ v)</p>
+<blockquote>
+<p>dp[i][j] = max(dp[i-1][j],dp[i-1][总重量-自身重量]+自身价值)</p>
+</blockquote>
+<h2 id="背包类问题"><a href="#背包类问题" class="headerlink" title="背包类问题"></a>背包类问题</h2><h3 id="组合问题公式"><a href="#组合问题公式" class="headerlink" title="组合问题公式"></a>组合问题公式</h3><p>dp[i] += dp[i-num]</p>
+<h3 id="True、False问题公式"><a href="#True、False问题公式" class="headerlink" title="True、False问题公式"></a>True、False问题公式</h3><p>dp[i] = dp[i] or dp[i-num]</p>
+<h3 id="最大最小问题公式"><a href="#最大最小问题公式" class="headerlink" title="最大最小问题公式"></a>最大最小问题公式</h3><p>dp[i] = min(dp[i], dp[i-num]+1)或者dp[i] = max(dp[i], dp[i-num]+1)</p>
+<p>作者：Jackie1995<br>链接：<a href="https://leetcode-cn.com/problems/combination-sum-iv/solution/xi-wang-yong-yi-chong-gui-lu-gao-ding-bei-bao-wen-/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/combination-sum-iv/solution/xi-wang-yong-yi-chong-gui-lu-gao-ding-bei-bao-wen-/</a><br>来源：力扣（LeetCode）<br>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="../../../../tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"># 数据结构与算法</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="../../../../2020/12/06/AQS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" rel="next" title="AQS源码阅读笔记(ReentrantLock简单实用部分)">
+                <i class="fa fa-chevron-left"></i> AQS源码阅读笔记(ReentrantLock简单实用部分)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="../../../../2222/02/08/newBegin/" rel="prev" title="序">
+                序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="../../../../images/Avatar.png"
+                alt="DingoDemon" />
+            
+              <p class="site-author-name" itemprop="name">DingoDemon</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="../../../../archives">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="../../../../tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:wangdingyusg@163.com" target="_blank" title="Email">
+                      
+                        <i class="fa fa-fw fa-globe"></i>Email</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/DingoDemon" target="_blank" title="github">
+                      
+                        <i class="fa fa-fw fa-globe"></i>github</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背包问题"><span class="nav-number">1.</span> <span class="nav-text">背包问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#例题-物品重量和价值比如下，背包总容量是10，物品总种类是4"><span class="nav-number">1.1.</span> <span class="nav-text">例题 物品重量和价值比如下，背包总容量是10，物品总种类是4</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0-1背包问题"><span class="nav-number">1.2.</span> <span class="nav-text">0&#x2F;1背包问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#完全背包"><span class="nav-number">1.3.</span> <span class="nav-text">完全背包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多重背包问题"><span class="nav-number">1.4.</span> <span class="nav-text">多重背包问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二位费用背包"><span class="nav-number">1.5.</span> <span class="nav-text">二位费用背包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#背包类问题"><span class="nav-number">1.6.</span> <span class="nav-text">背包类问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#组合问题公式"><span class="nav-number">1.6.1.</span> <span class="nav-text">组合问题公式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#True、False问题公式"><span class="nav-number">1.6.2.</span> <span class="nav-text">True、False问题公式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最大最小问题公式"><span class="nav-number">1.6.3.</span> <span class="nav-text">最大最小问题公式</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DingoDemon</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="../../../../js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="../../../../js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="../../../../js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="../../../../js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="../../../../js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="../../../../js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="../../../../js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
