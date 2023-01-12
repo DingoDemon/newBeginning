@@ -228,6 +228,294 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com../../2020/06/18/TouchEventSourceCode/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DingoDemon">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="../../images/Avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DingoDemon">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="../../2020/06/18/TouchEventSourceCode/" itemprop="url">Touch事件 流程分析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-18T16:40:21+08:00">
+                2020-06-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p><a href="https://zhuanlan.zhihu.com/p/115443163" target="_blank" rel="noopener">Android知识笔记：记录 2 个 “容易误解” 的Android 知识点</a></p>
+<p>源码版本 android - 25</p>
+</blockquote>
+<h2 id="Touch事件从触摸到Activity"><a href="#Touch事件从触摸到Activity" class="headerlink" title="Touch事件从触摸到Activity"></a>Touch事件从触摸到Activity</h2><blockquote>
+<ol>
+<li><p>当屏幕被触摸，Linux内核会将硬件产生的触摸事件包装为Event存到/dev/input/event[x]目录下。</p>
+</li>
+<li><p>Input系统—InputReader线程：loop起来让EventHub调用getEvent()不断的从/dev/input/文件夹下读取输入事件。然后转换成EventEntry事件加入到InputDispatcher的mInboundQueue。</p>
+</li>
+<li><p>Input系统—InputDispatcher线程：从mInboundQueue队列取出事件，转换成DispatchEntry事件加入到connection的outboundQueue队列。再然后开始处理分发事件 （比如分发到ViewRootImpl的WindowInputEventReceiver中），取出outbound队列，放入waitQueue.</p>
+</li>
+<li><p>Input系统—UI线程：创建socket pair，分别位于”InputDispatcher”线程和focused窗口所在进程的UI主线程，可相互通信。</p>
+</li>
+</ol>
+</blockquote>
+<h3 id="InputEventReceiver"><a href="#InputEventReceiver" class="headerlink" title="InputEventReceiver"></a>InputEventReceiver</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//InputEventReceiver.dispachInputEvent()</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">dispatchInputEvent</span><span class="params">(<span class="keyword">int</span> seq, InputEvent event)</span> </span>&#123;</span><br><span class="line">    mSeqMap.put(event.getSequenceNumber(), seq);</span><br><span class="line">    onInputEvent(event); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">finishInputEvent</span><span class="params">(InputEvent event, <span class="keyword">boolean</span> handled)</span> </span>&#123;</span><br><span class="line">        nativeFinishInputEvent(mReceiverPtr, seq, handled);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Native层通过JNI执行Framework层的InputEventReceiver.dispachInputEvent()，而真正调用的是继承了InputEventReceiver的ViewRootImpl.WindowInputEventReceiver。</p>
+<p>所以这里执行的WindowInputEventReceiver的dispachInputEvent()</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">WindowInputEventReceiver</span> <span class="keyword">extends</span> <span class="title">InputEventReceiver</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onInputEvent</span><span class="params">(InputEvent event)</span> </span>&#123;</span><br><span class="line">       enqueueInputEvent(event, <span class="keyword">this</span>, <span class="number">0</span>, <span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="../../2020/06/18/TouchEventSourceCode/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com../../2020/06/14/RecyclerView(%E4%BA%8C)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DingoDemon">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="../../images/Avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DingoDemon">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="../../2020/06/14/RecyclerView(%E4%BA%8C)/" itemprop="url">RecyclerView(二) - 缓存</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-14T18:05:15+08:00">
+                2020-06-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>鸣谢:</p>
+<blockquote>
+<p><a href="https://juejin.im/post/5eae33a26fb9a043586c7f19" target="_blank" rel="noopener">深入理解 RecyclerView 的缓存机制</a></p>
+<p><a href="https://juejin.im/post/5b77f1d0e51d4538900586fb" target="_blank" rel="noopener">RecyclerView预加载机制源码分析</a></p>
+</blockquote>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>RecyclerView 在滑动中不能每次都将移除的View销毁，创建新的添加进来。也不能无限地添加不销毁。RecyclerView内部实现了三级缓存，使之能够:</p>
+<ul>
+<li><p>上下滚动时利用复用机制，往下滑动时将移去的View缓存下来。往回滑动时如果可复用，移入时从缓存里添加回来。</p>
+</li>
+<li><p>在向一个方向滑动时，计算即将滑入的View，并在规定时间内，尝试将其加入缓存。<em>更高效地利用UIThread</em></p>
+</li>
+<li><p>在全局刷新(NotifyDataSetChange)的时候，亦有缓存的应用,将还可复用的item，再加回来。</p>
+</li>
+<li><p>甚至在多个RecyclerView之间，如果是相同的Adapter&amp;&amp;ViewType，那么无疑需要使用缓存。</p>
+</li>
+</ul>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="../../2020/06/14/RecyclerView(%E4%BA%8C)/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com../../2020/06/12/RecyclerView(%E4%B8%80)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1449,7 +1737,7 @@
               
                 <a href="../../archives">
               
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">20</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1524,7 +1812,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
